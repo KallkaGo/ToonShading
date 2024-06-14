@@ -11,6 +11,7 @@ import { useEffect, useMemo, useRef } from "react";
 import {
   DoubleSide,
   Group,
+  Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
   MirroredRepeatWrapping,
@@ -24,9 +25,11 @@ import fragmentShader from "../shader/fragment.glsl";
 import { useFrame } from "@react-three/fiber";
 import { useControls } from "leva";
 import { EffectComposer, SMAA } from "@react-three/postprocessing";
+import { color } from "three/examples/jsm/nodes/Nodes.js";
 
 const Sketch = () => {
   const gltf = useGLTF("/face.glb");
+  const ayakaGltf = useGLTF("/ayaka.glb");
   const faceLightMap = useTexture("/faceLightmap.png");
   faceLightMap.wrapS = faceLightMap.wrapT = RepeatWrapping;
   faceLightMap.generateMipmaps = false;
@@ -57,18 +60,52 @@ const Sketch = () => {
   useEffect(() => {
     const modelParts = flatModel(gltf);
     printModel(modelParts);
-    const face = modelParts[1];
-    console.log("face", face);
-    const newMat = new CustomShaderMaterial({
-      baseMaterial: MeshBasicMaterial,
-      vertexShader,
-      fragmentShader,
-      uniforms,
-      map: (face.material as MeshStandardMaterial).map,
-      silent: true,
-      // side: DoubleSide,
+    // const face = modelParts[1];
+    // console.log("face", face);
+
+    // face.material = newMat;
+    ayakaGltf.scene.traverse((child) => {
+      if (child instanceof Mesh) {
+        const mat = child.material as MeshStandardMaterial;
+        if (mat.name === "face") {
+          const newMat = new CustomShaderMaterial({
+            baseMaterial: MeshBasicMaterial,
+            vertexShader,
+            fragmentShader,
+            uniforms,
+            map: mat.map,
+            silent: true,
+            // side: DoubleSide,
+          });
+          child.material = newMat;
+        } else {
+          child.material = new CustomShaderMaterial({
+            baseMaterial: MeshBasicMaterial,
+            map: mat.map,
+            color: mat.color,
+            transparent: true,
+            uniforms,
+            vertexShader,
+            silent: true,
+            fragmentShader: /* glsl */ `
+              uniform vec3 uLightPosition;
+              varying vec3 vWorldNormal;
+
+            void main() {
+              vec3 nomal = normalize(vWorldNormal);
+              float NDotV = dot(nomal, uLightPosition);
+              float factor =  step(0.0, NDotV);
+              vec3 baseColor = csm_DiffuseColor.rgb;
+              vec3 darkColor = baseColor * 0.8;
+              // csm_DiffuseColor = vec4(mix(darkColor, baseColor, factor), 1.0);
+              csm_DiffuseColor = vec4(mix(darkColor, baseColor, factor), csm_DiffuseColor.a);
+            }
+            `,
+          });
+        }
+      }
     });
-    face.material = newMat;
+
     useLoadedStore.setState({ ready: true });
   }, []);
 
@@ -83,7 +120,8 @@ const Sketch = () => {
     <>
       <OrbitControls domElement={controlDom} />
       <color attach={"background"} args={["ivory"]} />
-      <primitive object={gltf.scene} scale={[2, 2, 2]} />
+      {/* <primitive object={gltf.scene} scale={[2, 2, 2]} /> */}
+      <primitive object={ayakaGltf.scene} />
       <group ref={groupRef} visible={false}>
         <mesh position={[0, 0, 1]} scale={[0.2, 0.2, 0.2]}>
           <sphereGeometry></sphereGeometry>

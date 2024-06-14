@@ -16,7 +16,7 @@ export default function ThreeContainer() {
                 camera={{
                     fov: 50,
                     near: 0.1,
-                    position: [0, 0, 1],
+                    position: [0, 3, 3],
                     far: 500,
                 }}
             >
