@@ -64,7 +64,7 @@ const Sketch = () => {
     // console.log("face", face);
 
     // face.material = newMat;
-
+    console.log("ayakaGltf", ayakaGltf);
     useLoadedStore.setState({ ready: true });
   }, []);
 
@@ -85,48 +85,32 @@ const Sketch = () => {
           });
           child.material = newMat;
         } else {
-          (child.material as MeshStandardMaterial).onBeforeCompile = (
-            shader
-          ) => {
-            shader.uniforms.uLightPosition = uniforms.uLightPosition;
-
-            shader.vertexShader = shader.vertexShader.replace(
-              "#include <common>",
-              /* glsl */ `
-              #include <common>
-              varying vec3 vWorldNormal;
-              `
-            );
-
-            shader.vertexShader = shader.vertexShader.replace(
-              "#include <begin_vertex>",
-              /* glsl */ `
-              #include <begin_vertex>
-              vWorldNormal = (modelMatrix * vec4(normal, 0.0)).xyz;
-              `
-            );
-
-            shader.fragmentShader = shader.fragmentShader.replace(
-              "#include <common>",
-              /* glsl */ `
-              #include <common>
-              uniform vec3 uLightPosition;
-              varying vec3 vWorldNormal;
-              `
-            );
-            shader.fragmentShader = shader.fragmentShader.replace(
-              "#include <opaque_fragment>",
-              /* glsl */ `
-              #include <opaque_fragment>
+          child.material = new CustomShaderMaterial({
+            name: mat.name,
+            baseMaterial: MeshBasicMaterial,
+            color: mat.color,
+            transparent: mat.transparent,
+            map: mat.map,
+            depthWrite: mat.depthWrite,
+            depthTest: mat.depthTest,
+            side: mat.side,
+            silent: true,
+            alphaTest: mat.alphaTest,
+            uniforms,
+            vertexShader,
+            fragmentShader: /* glsl */ `
+            uniform vec3 uLightPosition;
+            varying vec3 vWorldNormal;
+            void main() {
               vec3 nor = normalize(vWorldNormal);
               float NDotV = dot(nor, uLightPosition);
               float factor =  step(0.0, NDotV);
-              vec3 baseColor = diffuseColor.rgb;
+              vec3 baseColor = csm_DiffuseColor.rgb;
               vec3 darkColor = baseColor * 0.8;
-              gl_FragColor = vec4(mix(darkColor, baseColor, factor), gl_FragColor.a);
-              `
-            );
-          };
+              csm_FragColor = vec4(mix(darkColor, baseColor, factor), csm_DiffuseColor.a);
+            }
+            `,
+          });
         }
       }
     });
