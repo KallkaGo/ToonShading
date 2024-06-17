@@ -2,6 +2,7 @@ varying vec2 vUv;
 uniform vec3 uLightPosition;
 uniform vec3 uWorldDir;
 uniform sampler2D uFaceLightMap;
+uniform sampler2D uLightMap;
 
 vec3 multiplySampler(sampler2D tex, vec2 texCoord) {
   vec3 texColor1 = texture2D(tex, texCoord).rgb;
@@ -14,6 +15,10 @@ vec3 multiplySampler(sampler2D tex, vec2 texCoord) {
 }
 
 void main() {
+  /* lightMap */
+  vec4 lightMapTex = texture2D(uLightMap, vUv);
+  lightMapTex.g = smoothstep(.2,.3,lightMapTex.g);
+
   float isShadow = 0.;
   vec3 faceDir = vec3(0., 0., 1.);
   vec3 up = vec3(0., 1., 0.);
