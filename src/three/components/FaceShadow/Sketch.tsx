@@ -9,6 +9,7 @@ import { useInteractStore, useLoadedStore } from "@utils/Store";
 import { flatModel, printModel } from "@utils/misc";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import {
+  ClampToEdgeWrapping,
   DoubleSide,
   Group,
   Mesh,
@@ -35,14 +36,15 @@ const Sketch = () => {
   faceLightMap.generateMipmaps = false;
   faceLightMap.flipY = false;
   const hairLightMap = useTexture("/Hair/light.png");
-  hairLightMap.flipY = true;
+  hairLightMap.flipY = false;
+  hairLightMap.wrapS = hairLightMap.wrapT = RepeatWrapping;
   const bodyLightMap = useTexture("/Body/light.png");
-  bodyLightMap.flipY = true;
-
+  bodyLightMap.flipY = false;
+  bodyLightMap.wrapS = bodyLightMap.wrapT = RepeatWrapping;
   const hairRampMap = useTexture("/Hair/ramp.png");
-  // hairRampMap.flipY = true;
+  hairRampMap.flipY = false;
   const bodyRampMap = useTexture("/Body/ramp.png");
-  // bodyRampMap.flipY = true;
+  bodyRampMap.flipY = false;
   const groupRef = useRef<Group>(null);
   const controlDom = useInteractStore((state) => state.controlDom);
 
@@ -99,10 +101,10 @@ const Sketch = () => {
             vertexShader,
             fragmentShader: OtherfragmentShader,
           });
-          if (mat.name === "hair") {
+          if (mat.name === "hair" || mat.name === "hair_1") {
             child.material.uniforms.uLightMap = new Uniform(hairLightMap);
             child.material.uniforms.uRampMap = new Uniform(hairRampMap);
-          } else {
+          } else if (mat.name === "body") {
             child.material.uniforms.uLightMap = new Uniform(bodyLightMap);
             child.material.uniforms.uRampMap = new Uniform(bodyRampMap);
           }
