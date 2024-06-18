@@ -1,10 +1,15 @@
 varying vec2 vUv;
 varying vec3 vWorldNormal;
+varying vec3 vDirWs;
+varying vec3 vViewNormal;
 uniform vec3 uLightPosition;
 uniform sampler2D uLightMap;
 uniform sampler2D uRampMap;
+uniform sampler2D uMetalMap;
 uniform float uIsDay;
-uniform bool uHair;
+uniform vec3 uShadowColor;
+uniform float uNoMetallic;
+uniform float uMetallic;
 
 float RampMapRow0 = 1.;
 float RampMapRow1 = 4.;
@@ -13,14 +18,25 @@ float RampMapRow3 = 5.;
 float RampMapRow4 = 2.;
 
 void main() {
+  /* 处理需要的数据 */
+  vec3 nor = normalize(vWorldNormal);
+  vec3 dirL = normalize(uLightPosition);
+  vec3 hDirWS = normalize(vDirWs + uLightPosition);
+
+  vec2 matcapUV = (normalize(vViewNormal.xy) + 1.) * .5;
+
+  float NDotL = dot(nor, dirL); //lambert
+
+  float NDotH = dot(vWorldNormal, hDirWS); //Blinn-Phong
+
+  float NdotV = dot(vWorldNormal, vDirWs); //fresnel
 
   /* lightMap */
   vec4 lightMapTex = texture2D(uLightMap, vUv);
   lightMapTex.g = smoothstep(.2, .3, lightMapTex.g);
-  vec3 nor = normalize(vWorldNormal);
-  vec3 dirL = normalize(uLightPosition);
-  float NDotV = dot(nor, dirL);
-  float halfLambert = pow(NDotV * .5 + .5, 2.)* lightMapTex.g;
+
+  float halfLambert = pow(NDotL * .5 + .5, 2.);
+  float lamberStep = smoothstep(.423, .45, halfLambert);
 
   /* 枚举样条阈值 */
   float matEnum0 = .0;
@@ -52,8 +68,39 @@ void main() {
   vec2 dayUV = vec2(rampU, 1. - dayRampV);
   vec2 nightUV = vec2(rampU, 1. - nightRampV);
 
+  vec2 darkDayUV = vec2(rampClampMin, 1. - dayRampV);
+  vec2 darkNightUV = vec2(rampClampMin, 1. - nightRampV);
+
   float uIsDay = (uIsDay + 1.) * .5;
-  vec3 col = mix(texture2D(uRampMap, nightUV).rgb, texture2D(uRampMap, dayUV).rgb, uIsDay);
+  vec3 rampGreyColor = mix(texture2D(uRampMap, nightUV).rgb, texture2D(uRampMap, dayUV).rgb, uIsDay);
+  vec3 rampDarkColor = mix(texture2D(uRampMap, darkNightUV).rgb, texture2D(uRampMap, darkDayUV).rgb, uIsDay);
+
   vec4 baseColor = csm_DiffuseColor;
-  csm_DiffuseColor = vec4(vec3(col * baseColor.rgb), baseColor.a);
-} 
+
+  vec3 grayShadowColor = baseColor.rgb * rampGreyColor * uShadowColor;
+  vec3 darkShadowColor = baseColor.rgb * rampDarkColor * uShadowColor;
+
+  /* light.g > 0.5的部分受光照影响 */
+  vec3 diffuse = vec3(0.);
+  diffuse = mix(grayShadowColor, baseColor.rgb, lamberStep);
+  diffuse = mix(darkShadowColor, diffuse, clamp(lightMapTex.g * 2., 0., 1.));
+  diffuse = mix(diffuse, baseColor.rgb, clamp(lightMapTex.g - .5, 0., 1.));
+
+  float blinPhong = step(0., NDotL) * pow(max(NDotH, 0.), 10.);
+  /* 避免漏光 */
+  vec3 noMetalicSpec = vec3(step(1.04 - blinPhong, lightMapTex.b) * lightMapTex.r) * uNoMetallic;
+
+  /*根据光的方向有一个衰减 这里设置的下限是0.2 ，光滑的非金属表面是不吸收颜色的，但是金属会吸收 所以需要乘以baseColor */
+  vec3 metalicSpec = vec3(blinPhong * lightMapTex.b * (lamberStep * .8 + .2) * baseColor.rgb) * uMetallic;
+
+  /* 根据魔法图r通道提取金属区域 */
+  float isMetal = step(.95, lightMapTex.r);
+
+  vec3 finalSpec = mix(noMetalicSpec, metalicSpec, isMetal);
+
+  vec3 metallic = mix(vec3(0.), texture2D(uMetalMap, matcapUV).rgb * baseColor.rgb, isMetal);
+
+  vec3 albedo = diffuse + finalSpec + metallic;
+
+  csm_DiffuseColor = vec4(albedo, baseColor.a);
+}
