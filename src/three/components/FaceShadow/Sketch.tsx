@@ -12,11 +12,13 @@ import {
   ClampToEdgeWrapping,
   DoubleSide,
   Group,
+  LinearSRGBColorSpace,
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
   MirroredRepeatWrapping,
   RepeatWrapping,
+  SRGBColorSpace,
   Uniform,
   UnsignedByteType,
   Vector3,
@@ -42,10 +44,14 @@ const Sketch = () => {
   bodyLightMap.flipY = false;
   bodyLightMap.wrapS = bodyLightMap.wrapT = RepeatWrapping;
   const hairRampMap = useTexture("/Hair/ramp.png");
-  hairRampMap.flipY = false;
+  hairRampMap.generateMipmaps = false;
+  hairRampMap.colorSpace = LinearSRGBColorSpace;
   const bodyRampMap = useTexture("/Body/ramp.png");
-  bodyRampMap.flipY = false;
+  bodyRampMap.generateMipmaps = false;
+  bodyRampMap.colorSpace = LinearSRGBColorSpace;
+
   const groupRef = useRef<Group>(null);
+  const bloomRef = useRef<any>(null);
   const controlDom = useInteractStore((state) => state.controlDom);
 
   const uniforms = useMemo(
@@ -53,6 +59,9 @@ const Sketch = () => {
       uLightPosition: new Uniform(new Vector3()),
       uFaceLightMap: new Uniform(faceLightMap),
       uRampVmove: new Uniform(0.5), //白天
+      uShadowSmooth: new Uniform(0.5),
+      uIsDay: new Uniform(0.5),
+      uHair: new Uniform(false),
     }),
     []
   );
@@ -66,6 +75,42 @@ const Sketch = () => {
       onChange: (v) => {
         groupRef.current!.rotation.y = v;
       },
+    },
+    ShadowSmooth: {
+      value: 0.22,
+      min: 0,
+      max: 5,
+      step: 0.01,
+      onChange: (v) => {
+        uniforms.uShadowSmooth.value = v;
+      },
+    },
+  });
+
+  useControls("Time", {
+    time: {
+      value: 1,
+      min: -1,
+      max: 1,
+      step: 0.01,
+      onChange: (v) => {
+        uniforms.uIsDay.value = v;
+      },
+    },
+  });
+
+  const { intensity, radius } = useControls("bloom", {
+    intensity: {
+      value: 1.41,
+      min: 0,
+      max: 10,
+      step: 0.01,
+    },
+    radius: {
+      value: 0.15,
+      min: 0,
+      max: 1,
+      step: 0.01,
     },
   });
 
@@ -104,6 +149,7 @@ const Sketch = () => {
           if (mat.name === "hair" || mat.name === "hair_1") {
             child.material.uniforms.uLightMap = new Uniform(hairLightMap);
             child.material.uniforms.uRampMap = new Uniform(hairRampMap);
+            child.material.uniforms.uHair = new Uniform(true);
           } else if (mat.name === "body") {
             child.material.uniforms.uLightMap = new Uniform(bodyLightMap);
             child.material.uniforms.uRampMap = new Uniform(bodyRampMap);
@@ -140,11 +186,12 @@ const Sketch = () => {
         frameBufferType={UnsignedByteType}
       >
         <Bloom
+          ref={bloomRef}
           luminanceThreshold={0.73}
           luminanceSmoothing={0.56}
-          intensity={1.2}
+          intensity={intensity}
           mipmapBlur
-          radius={0.2}
+          radius={radius}
         />
         <SMAA />
       </EffectComposer>

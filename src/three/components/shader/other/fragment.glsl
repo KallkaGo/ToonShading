@@ -1,41 +1,59 @@
-uniform vec3 uLightPosition;
+varying vec2 vUv;
 varying vec3 vWorldNormal;
+uniform vec3 uLightPosition;
 uniform sampler2D uLightMap;
 uniform sampler2D uRampMap;
-uniform float uRampVmove;
-varying vec2 vUv;
+uniform float uIsDay;
+uniform bool uHair;
+
+float RampMapRow0 = 1.;
+float RampMapRow1 = 4.;
+float RampMapRow2 = 3.;
+float RampMapRow3 = 5.;
+float RampMapRow4 = 2.;
 
 void main() {
 
   /* lightMap */
   vec4 lightMapTex = texture2D(uLightMap, vUv);
   lightMapTex.g = smoothstep(.2, .3, lightMapTex.g);
-
   vec3 nor = normalize(vWorldNormal);
-  float NDotV = dot(nor, uLightPosition);
-  // float halfLambert = (NDotV * 0.5 + 0.5) * lightMapTex.g;
-  float halfLambert = smoothstep(0.0, 1.14, NDotV + .5) * lightMapTex.g;
-  float brightMask = step(.99, halfLambert);
-  float ramp1 = .45 + uRampVmove;
-  float ramp2 = .35 + uRampVmove;
-  float ramp3 = .25 + uRampVmove;
-  float ramp4 = .15 + uRampVmove;
-  float ramp5 = .05 + uRampVmove;
+  vec3 dirL = normalize(uLightPosition);
+  float NDotV = dot(nor, dirL);
+  float halfLambert = pow(NDotV * .5 + .5, 2.)* lightMapTex.g;
 
-  float lightmapA2 = step(.25, lightMapTex.a);  //0.3
-  float lightmapA3 = step(.45, lightMapTex.a);  //0.5
-  float lightmapA4 = step(.65, lightMapTex.a);  //0.7
-  float lightmapA5 = step(.95, lightMapTex.a);  //1.0
+  /* 枚举样条阈值 */
+  float matEnum0 = .0;
+  float matEnum1 = .3;
+  float matEnum2 = .5;
+  float matEnum3 = .7;
+  float matEnum4 = 1.;
 
-  float rampValue = ramp1;
-  rampValue = mix(rampValue, ramp2, lightmapA2);
-  rampValue = mix(rampValue, ramp3, lightmapA3);
-  rampValue = mix(rampValue, ramp4, lightmapA4);
-  rampValue = mix(rampValue, ramp5, lightmapA5);
- 
-  vec3 ramp = texture2D(uRampMap, vec2(halfLambert, lightMapTex.a)).rgb;
-  vec3 baseColor = csm_DiffuseColor.rgb;
-  csm_FragColor = vec4(mix(ramp, vec3(halfLambert), brightMask) * baseColor, csm_DiffuseColor.a);
-  // csm_FragColor = vec4(vec3(lightMapTex.a), csm_DiffuseColor.a);
+  /* 计算每一行样条的中心点 */
+  float ramp0 = RampMapRow0 / 10. - .05;
+  float ramp1 = RampMapRow1 / 10. - .05;
+  float ramp2 = RampMapRow2 / 10. - .05;
+  float ramp3 = RampMapRow3 / 10. - .05;
+  float ramp4 = RampMapRow4 / 10. - .05;
 
+  /* 根据魔法图alpha通道的阈值 计算rampV */
+  float dayRampV = mix(ramp4, ramp3, step(lightMapTex.a, (matEnum4 + matEnum3) * .5));
+  dayRampV = mix(dayRampV, ramp2, step(lightMapTex.a, (matEnum3 + matEnum2) * .5));
+  dayRampV = mix(dayRampV, ramp1, step(lightMapTex.a, (matEnum2 + matEnum1) * .5));
+  dayRampV = mix(dayRampV, ramp0, step(lightMapTex.a, (matEnum1 + matEnum0) * .5));
+
+  float nightRampV = dayRampV + .5;
+
+  float rampClampMin = .003;
+  float rampClampMax = .997;
+
+  /* 防止取到边界 */
+  float rampU = clamp(smoothstep(.2, .4, halfLambert), rampClampMin, rampClampMax);
+  vec2 dayUV = vec2(rampU, 1. - dayRampV);
+  vec2 nightUV = vec2(rampU, 1. - nightRampV);
+
+  float uIsDay = (uIsDay + 1.) * .5;
+  vec3 col = mix(texture2D(uRampMap, nightUV).rgb, texture2D(uRampMap, dayUV).rgb, uIsDay);
+  vec4 baseColor = csm_DiffuseColor;
+  csm_DiffuseColor = vec4(vec3(col * baseColor.rgb), baseColor.a);
 } 
