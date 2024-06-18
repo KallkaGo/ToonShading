@@ -9,6 +9,7 @@ import { useInteractStore, useLoadedStore } from "@utils/Store";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import {
   Color,
+  FrontSide,
   Group,
   LinearSRGBColorSpace,
   Mesh,
@@ -48,12 +49,13 @@ const Sketch = () => {
   const hairRampMap = useTexture("/Hair/ramp.png");
   hairRampMap.generateMipmaps = false;
   hairRampMap.colorSpace = LinearSRGBColorSpace;
+
   const bodyRampMap = useTexture("/Body/ramp.png");
   bodyRampMap.generateMipmaps = false;
   bodyRampMap.colorSpace = LinearSRGBColorSpace;
 
   const metalMap = useTexture("matcap/metalMap.png");
-  metalMap.wrapS = metalMap.wrapT = RepeatWrapping;
+  // metalMap.wrapS = metalMap.wrapT = RepeatWrapping;
 
   const ayakaRef = useRef<any>(null);
   const groupRef = useRef<Group>(null);

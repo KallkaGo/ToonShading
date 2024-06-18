@@ -21,11 +21,12 @@ void main() {
   /* 处理需要的数据 */
   vec3 nor = normalize(vWorldNormal);
   vec3 dirL = normalize(uLightPosition);
-  vec3 hDirWS = normalize(vDirWs + uLightPosition);
+  vec3 hDirWS = normalize(vDirWs + dirL);
 
   vec2 matcapUV = (normalize(vViewNormal.xy) + 1.) * .5;
 
   float NDotL = dot(nor, dirL); //lambert
+  NDotL = max(NDotL, 0.);
 
   float NDotH = dot(vWorldNormal, hDirWS); //Blinn-Phong
 
@@ -33,10 +34,9 @@ void main() {
 
   /* lightMap */
   vec4 lightMapTex = texture2D(uLightMap, vUv);
-  lightMapTex.g = smoothstep(.2, .3, lightMapTex.g);
 
   float halfLambert = pow(NDotL * .5 + .5, 2.);
-  float lamberStep = smoothstep(.423, .45, halfLambert);
+  float lamberStep = smoothstep(.42, .45, halfLambert);
 
   /* 枚举样条阈值 */
   float matEnum0 = .0;
@@ -84,7 +84,7 @@ void main() {
   vec3 diffuse = vec3(0.);
   diffuse = mix(grayShadowColor, baseColor.rgb, lamberStep);
   diffuse = mix(darkShadowColor, diffuse, clamp(lightMapTex.g * 2., 0., 1.));
-  diffuse = mix(diffuse, baseColor.rgb, clamp(lightMapTex.g - .5, 0., 1.));
+  diffuse = mix(diffuse, baseColor.rgb, clamp((lightMapTex.g - .5), 0., 1.) * 2.);
 
   float blinPhong = step(0., NDotL) * pow(max(NDotH, 0.), 10.);
   /* 避免漏光 */
