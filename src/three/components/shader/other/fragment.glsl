@@ -1,11 +1,14 @@
 varying vec2 vUv;
 varying vec3 vWorldNormal;
+varying vec3 vWorldTangent;
+varying vec3 vWorldBitangent;
 varying vec3 vDirWs;
 varying vec3 vViewNormal;
 uniform vec3 uLightPosition;
 uniform sampler2D uLightMap;
 uniform sampler2D uRampMap;
 uniform sampler2D uMetalMap;
+uniform sampler2D uNormalMap;
 uniform float uIsDay;
 uniform vec3 uShadowColor;
 uniform float uNoMetallic;
@@ -19,18 +22,28 @@ float RampMapRow4 = 2.;
 
 void main() {
   /* 处理需要的数据 */
-  vec3 nor = normalize(vWorldNormal);
+
+  /* normalMap */
+  vec4 normalTex = texture2D(uNormalMap, vUv);
+  vec3 normalTs = vec3(normalTex.rg * 2. - 1., 0.);
+  normalTs.z = sqrt(1. - dot(normalTs.xy, normalTs.xy));
+
+  mat3 tbn = mat3(normalize(vWorldTangent), normalize(vWorldBitangent), normalize(vWorldNormal));
+
+  vec3 worldNormal = normalize(tbn * normalTs);
+
   vec3 dirL = normalize(uLightPosition);
   vec3 hDirWS = normalize(vDirWs + dirL);
 
   vec2 matcapUV = (normalize(vViewNormal.xy) + 1.) * .5;
 
-  float NDotL = dot(nor, dirL); //lambert
+  float NDotL = dot(worldNormal, dirL); //lambert
+
   NDotL = max(NDotL, 0.);
 
-  float NDotH = dot(vWorldNormal, hDirWS); //Blinn-Phong
+  float NDotH = dot(worldNormal, hDirWS); //Blinn-Phong
 
-  float NdotV = dot(vWorldNormal, vDirWs); //fresnel
+  float NdotV = dot(worldNormal, vDirWs); //fresnel
 
   /* lightMap */
   vec4 lightMapTex = texture2D(uLightMap, vUv);
@@ -101,6 +114,10 @@ void main() {
   vec3 metallic = mix(vec3(0.), texture2D(uMetalMap, matcapUV).rgb * baseColor.rgb, isMetal);
 
   vec3 albedo = diffuse + finalSpec + metallic;
+
+  if(baseColor.a <= .5) {
+    discard;
+  }
 
   csm_DiffuseColor = vec4(albedo, baseColor.a);
 }

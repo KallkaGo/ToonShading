@@ -52,10 +52,16 @@ const Sketch = () => {
 
   const bodyRampMap = useTexture("/Body/ramp.png");
   bodyRampMap.generateMipmaps = false;
-  bodyRampMap.colorSpace = LinearSRGBColorSpace;
 
   const metalMap = useTexture("matcap/metalMap.png");
-  // metalMap.wrapS = metalMap.wrapT = RepeatWrapping;
+
+  const hairNormalMap = useTexture("/Hair/normal.png");
+  hairNormalMap.wrapS = hairNormalMap.wrapT = RepeatWrapping;
+  hairNormalMap.flipY = false;
+
+  const bodyNormalMap = useTexture("/Body/normal.png");
+  bodyNormalMap.wrapS = bodyNormalMap.wrapT = RepeatWrapping;
+  bodyNormalMap.flipY = false;
 
   const ayakaRef = useRef<any>(null);
   const groupRef = useRef<Group>(null);
@@ -67,7 +73,6 @@ const Sketch = () => {
       uLightPosition: new Uniform(new Vector3()),
       uFaceLightMap: new Uniform(faceLightMap),
       uRampVmove: new Uniform(0.5), //白天
-      uShadowSmooth: new Uniform(0.5),
       uIsDay: new Uniform(0.5),
       uHair: new Uniform(false),
       uShadowColor: new Uniform(new Color("white")),
@@ -86,15 +91,6 @@ const Sketch = () => {
       step: Math.PI / 100,
       onChange: (v) => {
         groupRef.current!.rotation.y = v;
-      },
-    },
-    ShadowSmooth: {
-      value: 0.22,
-      min: 0,
-      max: 5,
-      step: 0.01,
-      onChange: (v) => {
-        uniforms.uShadowSmooth.value = v;
       },
     },
   });
@@ -157,6 +153,7 @@ const Sketch = () => {
   });
 
   useEffect(() => {
+    console.log('@@@@@',ayakaGltf);
     ayakaGltf.scene.traverse((child) => {
       if (child instanceof Mesh) {
         const mat = child.material as MeshStandardMaterial;
@@ -191,10 +188,11 @@ const Sketch = () => {
           if (mat.name === "hair" || mat.name === "hair_1") {
             child.material.uniforms.uLightMap = new Uniform(hairLightMap);
             child.material.uniforms.uRampMap = new Uniform(hairRampMap);
-            child.material.uniforms.uHair = new Uniform(true);
+            child.material.uniforms.uNormalMap = new Uniform(hairNormalMap);
           } else if (mat.name === "body") {
             child.material.uniforms.uLightMap = new Uniform(bodyLightMap);
             child.material.uniforms.uRampMap = new Uniform(bodyRampMap);
+            child.material.uniforms.uNormalMap = new Uniform(bodyNormalMap);
           }
         }
       }
