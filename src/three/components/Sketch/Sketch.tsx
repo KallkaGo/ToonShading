@@ -153,7 +153,7 @@ const Sketch = () => {
   });
 
   useEffect(() => {
-    console.log('@@@@@',ayakaGltf);
+    console.log("@@@@@", ayakaGltf);
     ayakaGltf.scene.traverse((child) => {
       if (child instanceof Mesh) {
         const mat = child.material as MeshStandardMaterial;
@@ -212,7 +212,14 @@ const Sketch = () => {
       <color attach={"background"} args={["black"]} />
       {/* <primitive object={gltf.scene} scale={[2, 2, 2]} /> */}
       {/* <Environment preset={"city"} /> */}
-      <primitive object={ayakaGltf.scene} ref={ayakaRef} />
+      <group>
+        <primitive
+          object={ayakaGltf.scene}
+          ref={ayakaRef}
+          position={[0, -0.7, 0]}
+        />
+      </group>
+
       <group ref={groupRef} visible={false}>
         <mesh position={[0, 0, 1]} scale={[0.2, 0.2, 0.2]}>
           <sphereGeometry></sphereGeometry>
