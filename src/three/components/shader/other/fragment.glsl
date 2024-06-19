@@ -115,9 +115,10 @@ void main() {
 
   vec3 albedo = diffuse + finalSpec + metallic;
 
-  if(baseColor.a <= .5) {
+  if(baseColor.a < .5) {
     discard;
   }
-
-  csm_DiffuseColor = vec4(albedo, baseColor.a);
+  csm_Emissive = albedo;
+  csm_Roughness = 1.;
+  csm_Metalness = 0.;
 }

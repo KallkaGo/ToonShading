@@ -159,7 +159,7 @@ const Sketch = () => {
         const mat = child.material as MeshStandardMaterial;
         if (mat.name === "face") {
           const newMat = new CustomShaderMaterial({
-            baseMaterial: MeshBasicMaterial,
+            baseMaterial: MeshStandardMaterial,
             vertexShader,
             fragmentShader: FacefragmentShader,
             uniforms,
@@ -172,7 +172,7 @@ const Sketch = () => {
         } else {
           child.material = new CustomShaderMaterial({
             name: mat.name,
-            baseMaterial: MeshBasicMaterial,
+            baseMaterial: MeshStandardMaterial,
             color: mat.color,
             transparent: mat.transparent,
             map: mat.map,

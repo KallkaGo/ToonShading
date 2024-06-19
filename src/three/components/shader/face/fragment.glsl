@@ -36,5 +36,8 @@ void main() {
   };
   vec3 col = csm_DiffuseColor.rgb;
   vec3 darkCol = col * 0.8;
-  csm_DiffuseColor = vec4(mix(col, darkCol, isShadow), 1.0);
+  // csm_DiffuseColor = vec4(mix(col, darkCol, isShadow), 1.0);
+  csm_Emissive = mix(col, darkCol, isShadow);
+  csm_Roughness = 1.;
+  csm_Metalness = 0.;
 }
