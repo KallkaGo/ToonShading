@@ -115,7 +115,7 @@ void main() {
 
   vec3 metallic = mix(vec3(0.), texture2D(uMetalMap, matcapUV).rgb * baseColor.rgb, isMetal);
 
-  float fresnel = clamp(pow(1. - NdotV, 3.5), 0., .7);
+  float fresnel = clamp(pow(1. - NdotV, 3.5), 0., .5);
 
   /* 边缘光 */
   vec3 rimLight = baseColor.rgb * fresnel;
