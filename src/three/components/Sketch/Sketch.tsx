@@ -17,6 +17,7 @@ import {
   MeshStandardMaterial,
   Object3D,
   RepeatWrapping,
+  SRGBColorSpace,
   Uniform,
   UnsignedByteType,
   Vector3,
@@ -50,6 +51,10 @@ const Sketch = () => {
   hairRampMap.generateMipmaps = false;
   hairRampMap.colorSpace = LinearSRGBColorSpace;
 
+  const bodyEmissiveMap = useTexture("/Body/emissive.png");
+  bodyEmissiveMap.flipY = false;
+  bodyEmissiveMap.colorSpace = SRGBColorSpace;
+
   const bodyRampMap = useTexture("/Body/ramp.png");
   bodyRampMap.generateMipmaps = false;
 
@@ -79,6 +84,7 @@ const Sketch = () => {
       uMetalMap: new Uniform(metalMap),
       uNoMetallic: new Uniform(1),
       uMetallic: new Uniform(0.5),
+      uTime: new Uniform(0),
     }),
     []
   );
@@ -169,6 +175,7 @@ const Sketch = () => {
             // side: DoubleSide,
           });
           child.material = newMat;
+          child.material.uniforms.uRampMap = new Uniform(bodyRampMap);
         } else {
           child.material = new CustomShaderMaterial({
             name: mat.name,
@@ -189,10 +196,12 @@ const Sketch = () => {
             child.material.uniforms.uLightMap = new Uniform(hairLightMap);
             child.material.uniforms.uRampMap = new Uniform(hairRampMap);
             child.material.uniforms.uNormalMap = new Uniform(hairNormalMap);
+            child.material.uniforms.uEmissiveMap = new Uniform(null);
           } else if (mat.name === "body") {
             child.material.uniforms.uLightMap = new Uniform(bodyLightMap);
             child.material.uniforms.uRampMap = new Uniform(bodyRampMap);
             child.material.uniforms.uNormalMap = new Uniform(bodyNormalMap);
+            child.material.uniforms.uEmissiveMap = new Uniform(bodyEmissiveMap);
           }
         }
       }
@@ -201,9 +210,12 @@ const Sketch = () => {
   }, []);
 
   useFrame((state, delta) => {
+    delta %= 1;
     const vec = new Vector3();
     groupRef.current?.children[0].getWorldPosition(vec);
     uniforms.uLightPosition.value = vec;
+    uniforms.uTime.value += delta;
+    console.log(uniforms.uTime.value);
   });
 
   return (

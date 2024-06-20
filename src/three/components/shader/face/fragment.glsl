@@ -3,6 +3,10 @@ uniform vec3 uLightPosition;
 uniform vec3 uWorldDir;
 uniform sampler2D uFaceLightMap;
 uniform sampler2D uLightMap;
+uniform float uIsDay;
+uniform sampler2D uRampMap;
+
+float RampRow = 5.;
 
 vec3 multiplySampler(sampler2D tex, vec2 texCoord) {
   vec3 texColor1 = texture2D(tex, texCoord).rgb;
@@ -30,13 +34,26 @@ void main() {
   vec4 shadowTex = texture2D(uFaceLightMap, vec2(vUv.x * flag, vUv.y));
   float shadow = shadowTex.r;
   float t = dot(forwardVec, lightDirH);
+
   isShadow = step(shadow, ctrl);
   if(t < -0.9) {
     isShadow = 1.;
   };
+
+  /* 计算rampV */
+  float rampV = RampRow / 10. - .05;
+  float rampClampMin = .003;
+
+  vec2 rampDayUV = vec2(rampClampMin, 1. - rampV);
+  vec2 rampNightUV = vec2(rampClampMin, 1. - (rampV + .5));
+
+  float isDay = (uIsDay + 1.) * .5;
+
+  vec3 rampColor = mix(texture2D(uRampMap, rampNightUV), texture2D(uRampMap, rampDayUV), isDay).rgb;
+
   vec3 col = csm_DiffuseColor.rgb;
-  vec3 darkCol = col * 0.8;
-  // csm_DiffuseColor = vec4(mix(col, darkCol, isShadow), 1.0);
+  vec3 darkCol = col * rampColor;
+
   csm_Emissive = mix(col, darkCol, isShadow);
   csm_Roughness = 1.;
   csm_Metalness = 0.;

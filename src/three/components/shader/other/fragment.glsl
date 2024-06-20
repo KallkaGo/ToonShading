@@ -9,10 +9,12 @@ uniform sampler2D uLightMap;
 uniform sampler2D uRampMap;
 uniform sampler2D uMetalMap;
 uniform sampler2D uNormalMap;
+uniform sampler2D uEmissiveMap;
 uniform float uIsDay;
 uniform vec3 uShadowColor;
 uniform float uNoMetallic;
 uniform float uMetallic;
+uniform float uTime;
 
 float RampMapRow0 = 1.;
 float RampMapRow1 = 4.;
@@ -113,11 +115,18 @@ void main() {
 
   vec3 metallic = mix(vec3(0.), texture2D(uMetalMap, matcapUV).rgb * baseColor.rgb, isMetal);
 
-  vec3 albedo = diffuse + finalSpec + metallic;
+  float fresnel = clamp(pow(1. - NdotV, 3.5), 0., .7);
 
-  if(baseColor.a < .5) {
-    discard;
-  }
+  /* 边缘光 */
+  vec3 rimLight = baseColor.rgb * fresnel;
+  /* 自发光 */
+  vec4 emissiveTex = texture2D(uEmissiveMap, vUv);
+  emissiveTex.a = smoothstep(0., 1., emissiveTex.a);
+
+  vec3 glow = mix(vec3(0.), emissiveTex.rgb * abs(sin(uTime)) * .2, emissiveTex.a);
+
+  vec3 albedo = diffuse + finalSpec + metallic + rimLight + glow;
+
   csm_Emissive = albedo;
   csm_Roughness = 1.;
   csm_Metalness = 0.;
