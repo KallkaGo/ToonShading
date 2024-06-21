@@ -22,6 +22,7 @@ import {
   ShaderMaterial,
   Uniform,
   UnsignedByteType,
+  Vector2,
   Vector3,
 } from "three";
 import CustomShaderMaterial from "three-custom-shader-material/vanilla";
@@ -88,6 +89,14 @@ const Sketch = () => {
       uNoMetallic: new Uniform(1),
       uMetallic: new Uniform(0.5),
       uTime: new Uniform(0),
+    }),
+    []
+  );
+
+  const outlineUniforms = useMemo(
+    () => ({
+      uResolution: new Uniform(new Vector2()),
+      uOutLineWidth: new Uniform(0.2),
     }),
     []
   );
@@ -162,11 +171,12 @@ const Sketch = () => {
   });
 
   useEffect(() => {
-    console.log("@@@@@", ayakaGltf);
+    const backModel = ayakaGltf.scene.clone(true);
     ayakaGltf.scene.traverse((child) => {
       if (child instanceof Mesh) {
         const mat = child.material as MeshStandardMaterial;
         if (mat.name === "face") {
+          console.log("@@@@@@@@@@@");
           const newMat = new CustomShaderMaterial({
             baseMaterial: MeshStandardMaterial,
             vertexShader,
@@ -214,26 +224,39 @@ const Sketch = () => {
       }
     });
 
-    const backModel = ayakaGltf.scene.clone(true);
     backModel.traverse((child) => {
       if (child instanceof Mesh) {
-        const mat = new ShaderMaterial({
-          vertexShader: /* glsl */ `
-          attribute vec3 _uv4;
-          void main() {
-            vec3 aveNormal = _uv4;
-            vec3 transformed = position + aveNormal * .08/100.;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
-          }  
-          `,
-          fragmentShader: /* glsl */ `
-          void main(){
-            gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
-          }
-          `,
-          side: BackSide,
-        });
-        child.material = mat;
+        console.log("child.material.name", child.material.name);
+        if (child.material.name !== "face") {
+          const mat = new ShaderMaterial({
+            uniforms: outlineUniforms,
+            vertexShader: /* glsl */ `
+            attribute vec3 _uv4;
+            uniform float uOutLineWidth;
+            uniform vec2 uResolution;
+            void main() {
+              vec3 aveNormal = _uv4;
+              vec3 transformed = position;
+              vec4 clipPosition = projectionMatrix * modelViewMatrix * vec4(transformed, 1.0);
+              vec3 viewNormal  = normalize(normalMatrix * aveNormal);
+              vec4 clipNormal  = projectionMatrix  * vec4(viewNormal, 0.0);
+              vec3 ndcNormal  = clipNormal.xyz * clipPosition.w;
+              float aspect = abs(uResolution.y / uResolution.x);
+              clipNormal.x *= aspect;
+              clipPosition.xy +=0.01*uOutLineWidth*ndcNormal.xy;
+              clipPosition.z += 0.0001 * ndcNormal.z;
+              gl_Position = clipPosition;
+            }  
+            `,
+            fragmentShader: /* glsl */ `
+            void main(){
+              gl_FragColor = vec4(0.1, 0.1, 0.1, 1.);
+            }
+            `,
+            side: BackSide,
+          });
+          child.material = mat;
+        }
       }
     });
     backModel.position.set(0, -0.7, 0);
@@ -247,6 +270,7 @@ const Sketch = () => {
     groupRef.current?.children[0].getWorldPosition(vec);
     uniforms.uLightPosition.value = vec;
     uniforms.uTime.value += delta;
+    outlineUniforms.uResolution.value.set(innerWidth, innerHeight);
   });
 
   return (
