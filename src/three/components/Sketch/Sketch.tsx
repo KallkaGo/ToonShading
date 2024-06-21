@@ -8,6 +8,7 @@ import {
 import { useInteractStore, useLoadedStore } from "@utils/Store";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import {
+  BackSide,
   Color,
   FrontSide,
   Group,
@@ -18,6 +19,7 @@ import {
   Object3D,
   RepeatWrapping,
   SRGBColorSpace,
+  ShaderMaterial,
   Uniform,
   UnsignedByteType,
   Vector3,
@@ -72,6 +74,7 @@ const Sketch = () => {
   const groupRef = useRef<Group>(null);
   const bloomRef = useRef<any>(null);
   const controlDom = useInteractStore((state) => state.controlDom);
+  const scene = useThree((state) => state.scene);
 
   const uniforms = useMemo(
     () => ({
@@ -176,8 +179,10 @@ const Sketch = () => {
           });
           child.material = newMat;
           child.material.uniforms.uRampMap = new Uniform(bodyRampMap);
-          child.material.uniforms.uForwardVec = new Uniform(new Vector3(0, 0, 1));
-          child.material.uniforms.uLeftVec = new Uniform(new Vector3(1,0,0));
+          child.material.uniforms.uForwardVec = new Uniform(
+            new Vector3(0, 0, 1)
+          );
+          child.material.uniforms.uLeftVec = new Uniform(new Vector3(1, 0, 0));
         } else {
           child.material = new CustomShaderMaterial({
             name: mat.name,
@@ -208,6 +213,31 @@ const Sketch = () => {
         }
       }
     });
+
+    const backModel = ayakaGltf.scene.clone(true);
+    backModel.traverse((child) => {
+      if (child instanceof Mesh) {
+        const mat = new ShaderMaterial({
+          vertexShader: /* glsl */ `
+          attribute vec3 _uv4;
+          void main() {
+            vec3 aveNormal = _uv4;
+            vec3 transformed = position + aveNormal * .08/100.;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
+          }  
+          `,
+          fragmentShader: /* glsl */ `
+          void main(){
+            gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+          }
+          `,
+          side: BackSide,
+        });
+        child.material = mat;
+      }
+    });
+    backModel.position.set(0, -0.7, 0);
+    scene.add(backModel);
     useLoadedStore.setState({ ready: true });
   }, []);
 
@@ -225,13 +255,11 @@ const Sketch = () => {
       <color attach={"background"} args={["black"]} />
       {/* <primitive object={gltf.scene} scale={[2, 2, 2]} /> */}
       {/* <Environment preset={"city"} /> */}
-      <group>
-        <primitive
-          object={ayakaGltf.scene}
-          ref={ayakaRef}
-          position={[0, -0.7, 0]}
-        />
-      </group>
+      <primitive
+        object={ayakaGltf.scene}
+        ref={ayakaRef}
+        position={[0, -0.7, 0]}
+      />
 
       <group ref={groupRef} visible={false}>
         <mesh position={[0, 0, 1]} scale={[0.2, 0.2, 0.2]}>
