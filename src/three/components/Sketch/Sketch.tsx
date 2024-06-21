@@ -25,7 +25,7 @@ import {
 import CustomShaderMaterial from "three-custom-shader-material/vanilla";
 import vertexShader from "../shader/vertex.glsl";
 import FacefragmentShader from "../shader/face/fragment.glsl";
-import OtherfragmentShader from "../shader/other/fragment.glsl";
+import OtherfragmentShader from "../shader/body/fragment.glsl";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useControls } from "leva";
 import {
@@ -176,6 +176,8 @@ const Sketch = () => {
           });
           child.material = newMat;
           child.material.uniforms.uRampMap = new Uniform(bodyRampMap);
+          child.material.uniforms.uForwardVec = new Uniform(new Vector3(0, 0, 1));
+          child.material.uniforms.uLeftVec = new Uniform(new Vector3(1,0,0));
         } else {
           child.material = new CustomShaderMaterial({
             name: mat.name,
@@ -215,7 +217,6 @@ const Sketch = () => {
     groupRef.current?.children[0].getWorldPosition(vec);
     uniforms.uLightPosition.value = vec;
     uniforms.uTime.value += delta;
-    console.log(uniforms.uTime.value);
   });
 
   return (

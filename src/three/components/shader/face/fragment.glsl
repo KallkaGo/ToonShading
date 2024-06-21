@@ -1,10 +1,11 @@
 varying vec2 vUv;
 uniform vec3 uLightPosition;
-uniform vec3 uWorldDir;
 uniform sampler2D uFaceLightMap;
 uniform sampler2D uLightMap;
 uniform float uIsDay;
 uniform sampler2D uRampMap;
+uniform vec3 uForwardVec;
+uniform vec3 uLeftVec;
 
 float RampRow = 5.;
 
@@ -19,26 +20,34 @@ vec3 multiplySampler(sampler2D tex, vec2 texCoord) {
 }
 
 void main() {
-  /* lightMap */
-  vec4 lightMapTex = texture2D(uLightMap, vUv);
-  lightMapTex.g = smoothstep(.2, .3, lightMapTex.g);
+  /* 处理数据 */
+  vec3 forwardVec = normalize(uForwardVec);
+  vec3 leftVec = normalize(uLeftVec);
+  vec3 lightVec = normalize(uLightPosition);
+  vec3 upVector = cross(forwardVec, leftVec);
 
-  float isShadow = 0.;
-  vec3 faceDir = vec3(0., 0., 1.);
-  vec3 up = vec3(0., 1., 0.);
-  vec3 faceLeft = cross(up, faceDir);
-  vec3 lightDirH = normalize(vec3(uLightPosition.x, 0., uLightPosition.z));
-  vec3 forwardVec = normalize(vec3(faceDir.x, 0., faceDir.z));
-  float ctrl = 1. - (dot(forwardVec, lightDirH) * 0.5 + 0.5);
-  float flag = step(0., dot(lightDirH, faceLeft)) * 2. - 1.;
-  vec4 shadowTex = texture2D(uFaceLightMap, vec2(vUv.x * flag, vUv.y));
-  float shadow = shadowTex.r;
-  float t = dot(forwardVec, lightDirH);
+  vec3 LpU = dot(lightVec, upVector) / pow(length(upVector), 2.) * upVector;
+  vec3 LpHeadHorizon = normalize(lightVec - LpU);
 
-  isShadow = step(shadow, ctrl);
-  if(t < -0.9) {
-    isShadow = 1.;
-  };
+  float value = acos(dot(LpHeadHorizon, leftVec)) / PI;
+
+  // 0-0.5 expose left 0.5-1 expose right
+  float exposeLeft = step(value, 0.5);
+
+  // left: map 0-0.5 to 1-0, right: map 0.5-1 to 0-1
+  float valueL = pow(1. - value * 2., 3.);
+  float valueR = pow(value * 2. - 1., 3.);
+
+  float mixValue = mix(valueR, valueL, exposeLeft);
+
+  float sdfRembrandLeft = texture2D(uFaceLightMap, vec2(1. - vUv.x, vUv.y)).r;
+  float sdfRembrandRight = texture2D(uFaceLightMap, vUv).r;
+  // 混合左右脸的sdf
+  float mixSdf = mix(sdfRembrandLeft, sdfRembrandRight, exposeLeft);
+  // 当value小于sdf的就是亮面 
+  float sdf = step(mixValue, mixSdf);
+  // 判断光照是否在后面
+  sdf = mix(0., sdf, step(0., dot(LpHeadHorizon, forwardVec)));
 
   /* 计算rampV */
   float rampV = RampRow / 10. - .05;
@@ -54,7 +63,8 @@ void main() {
   vec3 col = csm_DiffuseColor.rgb;
   vec3 darkCol = col * rampColor;
 
-  csm_Emissive = mix(col, darkCol, isShadow);
+  csm_Emissive = mix(darkCol, col, sdf);
+  // csm_Emissive = vec3(sdf);
   csm_Roughness = 1.;
   csm_Metalness = 0.;
 }

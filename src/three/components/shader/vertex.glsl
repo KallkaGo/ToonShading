@@ -5,6 +5,7 @@ varying vec3 vWorldTangent;
 varying vec3 vWorldBitangent;
 varying vec3 vDirWs;
 varying vec3 vViewNormal;
+
 void main() {
   vUv = uv;
   vWorldNormal = (modelMatrix * vec4(normal, 0.0)).xyz;
