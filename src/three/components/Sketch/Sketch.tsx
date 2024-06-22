@@ -96,7 +96,7 @@ const Sketch = () => {
   const outlineUniforms = useMemo(
     () => ({
       uResolution: new Uniform(new Vector2()),
-      uOutLineWidth: new Uniform(0.2),
+      uOutLineWidth: new Uniform(0.5),
     }),
     []
   );
@@ -175,8 +175,7 @@ const Sketch = () => {
     ayakaGltf.scene.traverse((child) => {
       if (child instanceof Mesh) {
         const mat = child.material as MeshStandardMaterial;
-        if (mat.name === "face") {
-          console.log("@@@@@@@@@@@");
+        if (mat.name == "face") {
           const newMat = new CustomShaderMaterial({
             baseMaterial: MeshStandardMaterial,
             vertexShader,
@@ -209,16 +208,17 @@ const Sketch = () => {
             vertexShader,
             fragmentShader: OtherfragmentShader,
           });
-          if (mat.name === "hair" || mat.name === "hair_1") {
+          if (mat.name === "hair" || mat.name == "dress") {
             child.material.uniforms.uLightMap = new Uniform(hairLightMap);
             child.material.uniforms.uRampMap = new Uniform(hairRampMap);
             child.material.uniforms.uNormalMap = new Uniform(hairNormalMap);
             child.material.uniforms.uEmissiveMap = new Uniform(null);
-          } else if (mat.name === "body") {
+          } else if (mat.name == "body") {
             child.material.uniforms.uLightMap = new Uniform(bodyLightMap);
             child.material.uniforms.uRampMap = new Uniform(bodyRampMap);
             child.material.uniforms.uNormalMap = new Uniform(bodyNormalMap);
             child.material.uniforms.uEmissiveMap = new Uniform(bodyEmissiveMap);
+            console.log("other!!!!!!!");
           }
         }
       }
@@ -228,35 +228,41 @@ const Sketch = () => {
       if (child instanceof Mesh) {
         console.log("child.material.name", child.material.name);
         if (child.material.name !== "face") {
-          const mat = new ShaderMaterial({
-            uniforms: outlineUniforms,
-            vertexShader: /* glsl */ `
-            attribute vec3 _uv4;
-            uniform float uOutLineWidth;
-            uniform vec2 uResolution;
-            void main() {
-              vec3 aveNormal = _uv4;
-              vec3 transformed = position;
-              vec4 clipPosition = projectionMatrix * modelViewMatrix * vec4(transformed, 1.0);
-              vec3 viewNormal  = normalize(normalMatrix * aveNormal);
-              vec4 clipNormal  = projectionMatrix  * vec4(viewNormal, 0.0);
-              vec3 ndcNormal  = clipNormal.xyz * clipPosition.w;
-              float aspect = abs(uResolution.y / uResolution.x);
-              clipNormal.x *= aspect;
-              clipPosition.xy +=0.01*uOutLineWidth*ndcNormal.xy;
-              clipPosition.z += 0.0001 * ndcNormal.z;
-              gl_Position = clipPosition;
-            }  
-            `,
-            fragmentShader: /* glsl */ `
-            void main(){
-              gl_FragColor = vec4(0.1, 0.1, 0.1, 1.);
-            }
-            `,
-            side: BackSide,
-          });
-          child.material = mat;
         }
+        const mat = new ShaderMaterial({
+          uniforms: outlineUniforms,
+          vertexShader: /* glsl */ `
+          attribute vec3 _uv4;
+          attribute vec4 color;
+          uniform float uOutLineWidth;
+          uniform vec2 uResolution;
+          varying vec4 vColor;
+          void main() {
+            vec3 aveNormal = _uv4;
+            vec3 transformed = position;
+            vec4 clipPosition = projectionMatrix * modelViewMatrix * vec4(transformed, 1.0);
+            vec3 viewNormal  = normalize(normalMatrix * aveNormal);
+            vec4 clipNormal  = projectionMatrix  * vec4(viewNormal, 0.0);
+            vec3 ndcNormal  = clipNormal.xyz * clipPosition.w;
+            float aspect = abs(uResolution.y / uResolution.x);
+            clipNormal.x *= aspect;
+            clipPosition.xy +=0.01*uOutLineWidth*ndcNormal.xy * color.a;
+            clipPosition.z += 0.0001 * ndcNormal.z;
+            gl_Position = clipPosition;
+            vColor= color;
+          }  
+          `,
+          fragmentShader: /* glsl */ `
+          varying vec4 vColor;
+          void main(){
+            gl_FragColor = vec4(0.1, 0.1, 0.1, 1.);
+            // gl_FragColor = vec4(vec3(vColor.rgb), 1.);
+
+          }
+          `,
+          side: BackSide,
+        });
+        child.material = mat;
       }
     });
     backModel.position.set(0, -0.7, 0);
