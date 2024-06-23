@@ -36,7 +36,9 @@ import {
   EffectComposer,
   SMAA,
   SelectiveBloom,
+  ToneMapping,
 } from "@react-three/postprocessing";
+import GTToneMap from "../effect/GTToneMap";
 
 const Sketch = () => {
   const ayakaGltf = useGLTF("/ayaka.glb");
@@ -96,7 +98,7 @@ const Sketch = () => {
   const outlineUniforms = useMemo(
     () => ({
       uResolution: new Uniform(new Vector2()),
-      uOutLineWidth: new Uniform(0.5),
+      uOutLineWidth: new Uniform(0.3),
     }),
     []
   );
@@ -170,11 +172,52 @@ const Sketch = () => {
     },
   });
 
+  const gtProps = useControls("ToneMap", {
+    MaxLuminanice: {
+      value: 3,
+      min: 1,
+      max: 100,
+      step: 0.01,
+    },
+    Contrast: {
+      value: 1.3,
+      min: 1,
+      max: 5,
+      step: 0.01,
+    },
+    LinearSectionStart: {
+      value: 0.85,
+      min: 0,
+      max: 1,
+      step: 0.01,
+    },
+    LinearSectionLength: {
+      value: 0.4,
+      min: 0,
+      max: .99,
+      step: 0.01,
+    },
+    BlackTightnessC: {
+      value: 1.33,
+      min: 1,
+      max: 3,
+      step: 0.01,
+    },
+    BlackTightnessB: {
+      value: 0.0,
+      min: 0,
+      max: 1,
+      step: 0.01,
+    },
+    Enabled: true,
+  });
+
   useEffect(() => {
     const backModel = ayakaGltf.scene.clone(true);
     ayakaGltf.scene.traverse((child) => {
       if (child instanceof Mesh) {
         const mat = child.material as MeshStandardMaterial;
+        mat.map!.colorSpace = SRGBColorSpace;
         if (mat.name == "face") {
           const newMat = new CustomShaderMaterial({
             baseMaterial: MeshStandardMaterial,
@@ -218,7 +261,6 @@ const Sketch = () => {
             child.material.uniforms.uRampMap = new Uniform(bodyRampMap);
             child.material.uniforms.uNormalMap = new Uniform(bodyNormalMap);
             child.material.uniforms.uEmissiveMap = new Uniform(bodyEmissiveMap);
-            console.log("other!!!!!!!");
           }
         }
       }
@@ -310,7 +352,8 @@ const Sketch = () => {
           mipmapBlur
           radius={radius}
         />
-        <SMAA />
+        <GTToneMap {...gtProps} />
+        {/* <ToneMapping /> */}
       </EffectComposer>
     </>
   );
