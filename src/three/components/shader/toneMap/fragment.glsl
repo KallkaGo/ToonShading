@@ -39,11 +39,12 @@ float GranTurismoTonemapper(float x) {
   float S0 = m + l0;
   float S1 = m + a * l0;
   float C2 = a * P / (P - S1);
-  float S_x = P - (P - S1) * pow(e, -(C2 * (x - S0) / P));
+  // float S_x = P - (P - S1) * pow(e, -(C2 * (x - S0) / P));
+  float S_x = P - (P - S1) * exp(-(C2 * (x - S0) / P));
+
   float w0_x = 1. - W_f(x, 0., m);
-  // float w0_x = 1. - smoothstep(0., m, x);
   float w2_x = H_f(x, m + l0, m + l0);
-  // float w2_x = (x < m + l) ? 0. : 1.;
+
   float w1_x = 1. - w0_x - w2_x;
   float f_x = T_x * w0_x + L_x * w1_x + S_x * w2_x;
   return f_x;

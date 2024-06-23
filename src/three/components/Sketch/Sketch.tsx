@@ -12,6 +12,7 @@ import {
   Color,
   FrontSide,
   Group,
+  HalfFloatType,
   LinearSRGBColorSpace,
   Mesh,
   MeshBasicMaterial,
@@ -33,7 +34,9 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useControls } from "leva";
 import {
   Bloom,
+  BrightnessContrast,
   EffectComposer,
+  HueSaturation,
   SMAA,
   SelectiveBloom,
   ToneMapping,
@@ -174,27 +177,27 @@ const Sketch = () => {
 
   const gtProps = useControls("ToneMap", {
     MaxLuminanice: {
-      value: 3,
+      value: 1,
       min: 1,
       max: 100,
       step: 0.01,
     },
     Contrast: {
-      value: 1.3,
+      value: 1.15,
       min: 1,
       max: 5,
       step: 0.01,
     },
     LinearSectionStart: {
-      value: 0.85,
+      value: 0.21,
       min: 0,
       max: 1,
       step: 0.01,
     },
     LinearSectionLength: {
-      value: 0.4,
+      value: 0.77,
       min: 0,
-      max: .99,
+      max: 0.99,
       step: 0.01,
     },
     BlackTightnessC: {
@@ -342,7 +345,7 @@ const Sketch = () => {
       <EffectComposer
         disableNormalPass
         multisampling={8}
-        frameBufferType={UnsignedByteType}
+        frameBufferType={HalfFloatType}
       >
         <Bloom
           ref={bloomRef}
@@ -353,7 +356,7 @@ const Sketch = () => {
           radius={radius}
         />
         <GTToneMap {...gtProps} />
-        {/* <ToneMapping /> */}
+        
       </EffectComposer>
     </>
   );
