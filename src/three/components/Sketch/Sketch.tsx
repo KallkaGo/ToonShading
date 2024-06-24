@@ -101,7 +101,7 @@ const Sketch = () => {
   const outlineUniforms = useMemo(
     () => ({
       uResolution: new Uniform(new Vector2()),
-      uOutLineWidth: new Uniform(0.3),
+      uOutLineWidth: new Uniform(0.5),
     }),
     []
   );
@@ -268,22 +268,25 @@ const Sketch = () => {
         }
       }
     });
-
+    console.log("ayakaGltf.scene", ayakaGltf.scene);
     backModel.traverse((child) => {
       if (child instanceof Mesh) {
         console.log("child.material.name", child.material.name);
-        if (child.material.name !== "face") {
-        }
         const mat = new ShaderMaterial({
           uniforms: outlineUniforms,
           vertexShader: /* glsl */ `
-          attribute vec3 _uv4;
+          attribute vec4 tangent;
+          attribute vec3 _uv7;
           attribute vec4 color;
           uniform float uOutLineWidth;
           uniform vec2 uResolution;
           varying vec4 vColor;
+          varying vec3 vNor;
           void main() {
-            vec3 aveNormal = _uv4;
+            vec3 tansTangent = normalize(tangent).xyz;
+            vec3 bitangent =normalize(cross(normal, tansTangent) * tangent.w);
+            mat3 tbn = mat3(tansTangent, bitangent, normal);
+            vec3 aveNormal = normalize(tbn * _uv7);
             vec3 transformed = position;
             vec4 clipPosition = projectionMatrix * modelViewMatrix * vec4(transformed, 1.0);
             vec3 viewNormal  = normalize(normalMatrix * aveNormal);
@@ -295,14 +298,14 @@ const Sketch = () => {
             clipPosition.z += 0.0001 * ndcNormal.z;
             gl_Position = clipPosition;
             vColor= color;
+            vNor = aveNormal;
           }  
           `,
           fragmentShader: /* glsl */ `
           varying vec4 vColor;
+          varying vec3 vNor;
           void main(){
             gl_FragColor = vec4(0.1, 0.1, 0.1, 1.);
-            // gl_FragColor = vec4(vec3(vColor.rgb), 1.);
-
           }
           `,
           side: BackSide,
@@ -356,7 +359,6 @@ const Sketch = () => {
           radius={radius}
         />
         <GTToneMap {...gtProps} />
-        
       </EffectComposer>
     </>
   );
