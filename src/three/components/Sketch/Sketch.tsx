@@ -38,10 +38,10 @@ import {
   EffectComposer,
   HueSaturation,
   SMAA,
-  SelectiveBloom,
   ToneMapping,
 } from "@react-three/postprocessing";
 import GTToneMap from "../effect/GTToneMap";
+import SelectiveBloom from "../effect/SelectiveBloom";
 
 const Sketch = () => {
   const ayakaGltf = useGLTF("/ayaka.glb");
@@ -130,7 +130,7 @@ const Sketch = () => {
     },
   });
 
-  const { intensity, radius } = useControls("bloom", {
+  const { intensity, threshold, luminanceSmoothing } = useControls("bloom", {
     intensity: {
       value: 1.41,
       min: 0,
@@ -142,6 +142,29 @@ const Sketch = () => {
       min: 0,
       max: 1,
       step: 0.01,
+      onChange: (v) => {
+        bloomRef.current.mipmapBlurPass.radius = Number(v);
+      },
+    },
+    threshold: { value: 0.8, min: 0, max: 1, step: 0.01 },
+    luminanceSmoothing: { value: 0.56, min: 0, max: 1, step: 0.01 },
+    ignoreBackground: {
+      value: true,
+      onChange: (v) => {
+        bloomRef.current.ignoreBackground = v;
+      },
+    },
+    filter: {
+      value: true,
+      onChange: (v) => {
+        bloomRef.current.luminancePass.enabled = v;
+      },
+    },
+    inverted: {
+      value: true,
+      onChange: (v) => {
+        bloomRef.current.inverted = v;
+      },
     },
   });
 
@@ -177,25 +200,25 @@ const Sketch = () => {
 
   const gtProps = useControls("ToneMap", {
     MaxLuminanice: {
-      value: 1,
+      value: 2,
       min: 1,
       max: 100,
       step: 0.01,
     },
     Contrast: {
-      value: 1.15,
+      value: 1,
       min: 1,
       max: 5,
       step: 0.01,
     },
     LinearSectionStart: {
-      value: 0.21,
+      value: 0.38,
       min: 0,
       max: 1,
       step: 0.01,
     },
     LinearSectionLength: {
-      value: 0.77,
+      value: 0.82,
       min: 0,
       max: 0.99,
       step: 0.01,
@@ -212,7 +235,7 @@ const Sketch = () => {
       max: 1,
       step: 0.01,
     },
-    Enabled: true,
+    Enabled:true,
   });
 
   useEffect(() => {
@@ -330,9 +353,17 @@ const Sketch = () => {
   return (
     <>
       <OrbitControls domElement={controlDom} />
-      <color attach={"background"} args={["black"]} />
+      <color attach={"background"} args={["ivory"]} />
       {/* <primitive object={gltf.scene} scale={[2, 2, 2]} /> */}
       {/* <Environment preset={"city"} /> */}
+      <Sky
+        sunPosition={[0, 0, -1]}
+        distance={50000}
+        turbidity={8}
+        rayleigh={6}
+        mieCoefficient={0.005}
+        mieDirectionalG={0.8}
+      />
       <primitive
         object={ayakaGltf.scene}
         ref={ayakaRef}
@@ -347,16 +378,23 @@ const Sketch = () => {
       </group>
       <EffectComposer
         disableNormalPass
-        multisampling={8}
-        frameBufferType={HalfFloatType}
+        multisampling={4}
+        frameBufferType={UnsignedByteType}
       >
-        <Bloom
+        {/* <Bloom
           ref={bloomRef}
           luminanceThreshold={0.73}
-          luminanceSmoothing={0.56}
+          luminanceSmoothing={1}
           intensity={intensity}
           mipmapBlur
           radius={radius}
+          opacity={0.7}
+        /> */}
+        <SelectiveBloom
+          ref={bloomRef}
+          luminanceThreshold={threshold}
+          luminanceSmoothing={luminanceSmoothing}
+          intensity={intensity}
         />
         <GTToneMap {...gtProps} />
       </EffectComposer>
