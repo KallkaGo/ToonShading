@@ -33,15 +33,12 @@ import OtherfragmentShader from "../shader/body/fragment.glsl";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useControls } from "leva";
 import {
-  Bloom,
-  BrightnessContrast,
   EffectComposer,
-  HueSaturation,
-  SMAA,
   ToneMapping,
+  Bloom,
 } from "@react-three/postprocessing";
 import GTToneMap from "../effect/GTToneMap";
-import SelectiveBloom from "../effect/SelectiveBloom";
+import { Bloom as CustomBloom } from "../effect/Bloom";
 
 const Sketch = () => {
   const ayakaGltf = useGLTF("/ayaka.glb");
@@ -101,7 +98,7 @@ const Sketch = () => {
   const outlineUniforms = useMemo(
     () => ({
       uResolution: new Uniform(new Vector2()),
-      uOutLineWidth: new Uniform(0.5),
+      uOutLineWidth: new Uniform(0.35),
     }),
     []
   );
@@ -130,41 +127,92 @@ const Sketch = () => {
     },
   });
 
-  const { intensity, threshold, luminanceSmoothing } = useControls("bloom", {
+  // const { intensity, threshold, luminanceSmoothing } = useControls("bloom", {
+  //   intensity: {
+  //     value: 1.41,
+  //     min: 0,
+  //     max: 10,
+  //     step: 0.01,
+  //   },
+  //   radius: {
+  //     value: 0.15,
+  //     min: 0,
+  //     max: 1,
+  //     step: 0.01,
+  //   },
+  //   threshold: { value: 0.8, min: 0, max: 1, step: 0.01 },
+  //   luminanceSmoothing: { value: 0.56, min: 0, max: 1, step: 0.01 },
+  //   ignoreBackground: {
+  //     value: true,
+  //     onChange: (v) => {
+  //       // bloomRef.current.ignoreBackground = v;
+  //     },
+  //   },
+  //   filter: {
+  //     value: true,
+  //     onChange: (v) => {
+  //       // bloomRef.current.luminancePass.enabled = v;
+  //     },
+  //   },
+  //   inverted: {
+  //     value: true,
+  //     onChange: (v) => {
+  //       // bloomRef.current.inverted = v;
+  //     },
+  //   },
+  // });
+  const { color, int } = useControls("Light", {
+    color: {
+      value: "#b15f5f",
+    },
+    int: {
+      value: 0.7,
+      min: 0,
+      max: 2,
+      step: 0.01,
+    },
+  });
+
+  const {
+    intensity,
+    radius,
+    luminanceThreshold,
+    iteration,
+    luminanceSmoothing,
+    glowColor,
+  } = useControls("Bloom", {
     intensity: {
-      value: 1.41,
+      value: 2,
       min: 0,
       max: 10,
       step: 0.01,
     },
     radius: {
-      value: 0.15,
+      value: 0.97,
+      min: 0,
+      max: 10,
+      step: 0.01,
+    },
+    luminanceThreshold: {
+      value: 0.9,
       min: 0,
       max: 1,
       step: 0.01,
-      onChange: (v) => {
-        bloomRef.current.mipmapBlurPass.radius = Number(v);
-      },
     },
-    threshold: { value: 0.8, min: 0, max: 1, step: 0.01 },
-    luminanceSmoothing: { value: 0.56, min: 0, max: 1, step: 0.01 },
-    ignoreBackground: {
-      value: true,
-      onChange: (v) => {
-        bloomRef.current.ignoreBackground = v;
-      },
+    luminanceSmoothing: {
+      value: 0.56,
+      min: 0,
+      max: 1,
+      step: 0.01,
     },
-    filter: {
-      value: true,
-      onChange: (v) => {
-        bloomRef.current.luminancePass.enabled = v;
-      },
+    iteration: {
+      value: 4,
+      min: 1,
+      max: 10,
+      step: 1,
     },
-    inverted: {
-      value: true,
-      onChange: (v) => {
-        bloomRef.current.inverted = v;
-      },
+    glowColor: {
+      value: "#e8aa70",
     },
   });
 
@@ -235,7 +283,7 @@ const Sketch = () => {
       max: 1,
       step: 0.01,
     },
-    Enabled:true,
+    Enabled: true,
   });
 
   useEffect(() => {
@@ -253,7 +301,7 @@ const Sketch = () => {
             map: mat.map,
             silent: true,
             transparent: mat.transparent,
-            // side: DoubleSide,
+            // side: DoubleSide
           });
           child.material = newMat;
           child.material.uniforms.uRampMap = new Uniform(bodyRampMap);
@@ -328,7 +376,7 @@ const Sketch = () => {
           varying vec4 vColor;
           varying vec3 vNor;
           void main(){
-            gl_FragColor = vec4(0.1, 0.1, 0.1, 1.);
+            gl_FragColor = vec4(0, 0, 0, 1.);
           }
           `,
           side: BackSide,
@@ -356,6 +404,9 @@ const Sketch = () => {
       <color attach={"background"} args={["ivory"]} />
       {/* <primitive object={gltf.scene} scale={[2, 2, 2]} /> */}
       {/* <Environment preset={"city"} /> */}
+      <ambientLight intensity={int} color={color} />
+      <ambientLight intensity={0.25} color={"red"} />
+
       <Sky
         sunPosition={[0, 0, -1]}
         distance={50000}
@@ -376,25 +427,28 @@ const Sketch = () => {
           <meshBasicMaterial color={"hotpink"}></meshBasicMaterial>
         </mesh>
       </group>
-      <EffectComposer
-        disableNormalPass
-        multisampling={4}
-        frameBufferType={UnsignedByteType}
-      >
+      <EffectComposer disableNormalPass frameBufferType={HalfFloatType}>
         {/* <Bloom
-          ref={bloomRef}
-          luminanceThreshold={0.73}
-          luminanceSmoothing={1}
+          luminanceThreshold={luminanceThreshold}
+          luminanceSmoothing={luminanceSmoothing}
           intensity={intensity}
           mipmapBlur
-          radius={radius}
-          opacity={0.7}
+          radius={0.3}
+    
         /> */}
-        <SelectiveBloom
+        {/* <SelectiveBloom
           ref={bloomRef}
           luminanceThreshold={threshold}
           luminanceSmoothing={luminanceSmoothing}
           intensity={intensity}
+        /> */}
+        <CustomBloom
+          intensity={intensity}
+          luminanceThreshold={luminanceThreshold}
+          luminanceSmoothing={luminanceSmoothing}
+          radius={radius}
+          iteration={iteration}
+          glowColor={glowColor}
         />
         <GTToneMap {...gtProps} />
       </EffectComposer>

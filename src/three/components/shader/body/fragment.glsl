@@ -125,7 +125,7 @@ void main() {
 
   vec3 glow = mix(vec3(0.), emissiveTex.rgb * abs(sin(uTime)) * .4, emissiveTex.a);
 
-  vec3 albedo = diffuse + finalSpec + metallic + rimLight + glow;
+  vec3 albedo = diffuse + finalSpec + metallic + glow;
 
   if(baseColor.a < .5) {
     discard;
