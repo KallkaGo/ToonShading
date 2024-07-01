@@ -25,11 +25,14 @@ import {
   UnsignedByteType,
   Vector2,
   Vector3,
+  Texture,
+  DoubleSide,
 } from "three";
 import CustomShaderMaterial from "three-custom-shader-material/vanilla";
 import vertexShader from "../shader/vertex.glsl";
 import FacefragmentShader from "../shader/face/fragment.glsl";
 import OtherfragmentShader from "../shader/body/fragment.glsl";
+import outlineVertexShader from "../shader/outline/vertex.glsl";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useControls } from "leva";
 import {
@@ -98,7 +101,7 @@ const Sketch = () => {
   const outlineUniforms = useMemo(
     () => ({
       uResolution: new Uniform(new Vector2()),
-      uOutLineWidth: new Uniform(0.35),
+      uOutLineWidth: new Uniform(0.45),
     }),
     []
   );
@@ -212,7 +215,7 @@ const Sketch = () => {
       step: 1,
     },
     glowColor: {
-      value: "#e8aa70",
+      value: "#fff0e5",
     },
   });
 
@@ -227,7 +230,7 @@ const Sketch = () => {
 
   useControls("Metal", {
     metallic: {
-      value: 1.78,
+      value: 0.2,
       min: 0,
       max: 10,
       step: 0.01,
@@ -301,7 +304,8 @@ const Sketch = () => {
             map: mat.map,
             silent: true,
             transparent: mat.transparent,
-            // side: DoubleSide
+            side: mat.side,
+            alphaTest: mat.alphaTest,
           });
           child.material = newMat;
           child.material.uniforms.uRampMap = new Uniform(bodyRampMap);
@@ -342,46 +346,41 @@ const Sketch = () => {
     console.log("ayakaGltf.scene", ayakaGltf.scene);
     backModel.traverse((child) => {
       if (child instanceof Mesh) {
-        console.log("child.material.name", child.material.name);
-        const mat = new ShaderMaterial({
-          uniforms: outlineUniforms,
-          vertexShader: /* glsl */ `
-          attribute vec4 tangent;
-          attribute vec3 _uv7;
-          attribute vec4 color;
-          uniform float uOutLineWidth;
-          uniform vec2 uResolution;
-          varying vec4 vColor;
-          varying vec3 vNor;
-          void main() {
-            vec3 tansTangent = normalize(tangent).xyz;
-            vec3 bitangent =normalize(cross(normal, tansTangent) * tangent.w);
-            mat3 tbn = mat3(tansTangent, bitangent, normal);
-            vec3 aveNormal = normalize(tbn * _uv7);
-            vec3 transformed = position;
-            vec4 clipPosition = projectionMatrix * modelViewMatrix * vec4(transformed, 1.0);
-            vec3 viewNormal  = normalize(normalMatrix * aveNormal);
-            vec4 clipNormal  = projectionMatrix  * vec4(viewNormal, 0.0);
-            vec3 ndcNormal  = clipNormal.xyz * clipPosition.w;
-            float aspect = abs(uResolution.y / uResolution.x);
-            clipNormal.x *= aspect;
-            clipPosition.xy +=0.01*uOutLineWidth*ndcNormal.xy * color.a;
-            clipPosition.z += 0.0001 * ndcNormal.z;
-            gl_Position = clipPosition;
-            vColor= color;
-            vNor = aveNormal;
-          }  
-          `,
-          fragmentShader: /* glsl */ `
-          varying vec4 vColor;
-          varying vec3 vNor;
-          void main(){
-            gl_FragColor = vec4(0, 0, 0, 1.);
-          }
-          `,
-          side: BackSide,
-        });
-        child.material = mat;
+        console.log(child.material.name);
+        if (child.material.name === "face") {
+          const mat = new ShaderMaterial({
+            uniforms: outlineUniforms,
+            vertexShader: outlineVertexShader,
+            fragmentShader: /* glsl */ `
+            uniform vec3 uColor;
+            void main(){
+              gl_FragColor = vec4(uColor, 1.);
+            }
+            `,
+            side: BackSide,
+          });
+          mat.uniforms.uColor = new Uniform(new Color("#d97d73"));
+          child.material = mat;
+        } else {
+          const mat = new ShaderMaterial({
+            uniforms: outlineUniforms,
+            vertexShader: outlineVertexShader,
+            fragmentShader: /* glsl */ `
+            varying vec2 vUv;
+            uniform vec3 uOutLineColor;
+            uniform sampler2D uDiffuse;
+            void main(){
+              vec4 col = texture2D(uDiffuse, vUv);
+              if(col.a < 0.5) discard;
+              gl_FragColor = vec4(uOutLineColor, 1.);
+            }
+            `,
+            side: BackSide,
+          });
+          mat.uniforms.uOutLineColor = new Uniform(new Color("black"));
+          mat.uniforms.uDiffuse = new Uniform(child.material.map);
+          child.material = mat;
+        }
       }
     });
     backModel.position.set(0, -0.7, 0);
