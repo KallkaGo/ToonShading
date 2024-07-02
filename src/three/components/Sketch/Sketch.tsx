@@ -101,7 +101,7 @@ const Sketch = () => {
   const outlineUniforms = useMemo(
     () => ({
       uResolution: new Uniform(new Vector2()),
-      uOutLineWidth: new Uniform(0.45),
+      uOutLineWidth: new Uniform(0.5),
     }),
     []
   );
@@ -346,41 +346,26 @@ const Sketch = () => {
     console.log("ayakaGltf.scene", ayakaGltf.scene);
     backModel.traverse((child) => {
       if (child instanceof Mesh) {
-        console.log(child.material.name);
-        if (child.material.name === "face") {
-          const mat = new ShaderMaterial({
-            uniforms: outlineUniforms,
-            vertexShader: outlineVertexShader,
-            fragmentShader: /* glsl */ `
-            uniform vec3 uColor;
-            void main(){
-              gl_FragColor = vec4(uColor, 1.);
-            }
-            `,
-            side: BackSide,
-          });
-          mat.uniforms.uColor = new Uniform(new Color("#d97d73"));
-          child.material = mat;
-        } else {
-          const mat = new ShaderMaterial({
-            uniforms: outlineUniforms,
-            vertexShader: outlineVertexShader,
-            fragmentShader: /* glsl */ `
-            varying vec2 vUv;
-            uniform vec3 uOutLineColor;
-            uniform sampler2D uDiffuse;
-            void main(){
-              vec4 col = texture2D(uDiffuse, vUv);
-              if(col.a < 0.5) discard;
-              gl_FragColor = vec4(uOutLineColor, 1.);
-            }
-            `,
-            side: BackSide,
-          });
-          mat.uniforms.uOutLineColor = new Uniform(new Color("black"));
-          mat.uniforms.uDiffuse = new Uniform(child.material.map);
-          child.material = mat;
-        }
+        const mat = new CustomShaderMaterial({
+          baseMaterial: MeshStandardMaterial,
+          uniforms: outlineUniforms,
+          vertexShader: outlineVertexShader,
+          fragmentShader: `
+          varying vec2 vUv;
+          uniform vec3 uOutLineColor;
+          uniform sampler2D uDiffuse;
+          void main(){
+            vec4 baseColor = csm_DiffuseColor;
+            if(baseColor.a < 0.5) discard;
+            csm_FragColor = vec4(baseColor.rgb * .2, 1.);
+          }
+          `,
+          side: BackSide,
+          vertexColors: true,
+          silent: true,
+          map: child.material.map,
+        });
+        child.material = mat;
       }
     });
     backModel.position.set(0, -0.7, 0);
