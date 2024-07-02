@@ -101,7 +101,7 @@ const Sketch = () => {
   const outlineUniforms = useMemo(
     () => ({
       uResolution: new Uniform(new Vector2()),
-      uOutLineWidth: new Uniform(0.5),
+      uOutLineWidth: new Uniform(0.2),
     }),
     []
   );

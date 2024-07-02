@@ -14,10 +14,11 @@ void main() {
   vec4 clipPosition = projectionMatrix * modelViewMatrix * vec4(trans, 1.0);
   vec3 viewNormal = normalize(normalMatrix * aveNormal);
   vec4 clipNormal = projectionMatrix * vec4(viewNormal, 0.0);
-  vec3 ndcNormal = clipNormal.xyz * clipPosition.w;
+  vec3 ndcNormal = clipNormal.xyz;
   float aspect = abs(uResolution.y / uResolution.x);
   clipNormal.x *= aspect;
-  clipPosition.xy += 0.01 * uOutLineWidth * ndcNormal.xy * color.a;
+  float clampW = (1. / clipNormal.w, .7, 1.);
+  clipPosition.xy += 0.01 * uOutLineWidth * ndcNormal.xy * color.a * clampW;
   clipPosition.z += 0.0001 * ndcNormal.z;
   csm_PositionRaw = clipPosition;
   vNor = aveNormal;
