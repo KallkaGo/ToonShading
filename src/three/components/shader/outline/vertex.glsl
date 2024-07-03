@@ -6,7 +6,7 @@ uniform vec2 uResolution;
 varying vec3 vNor;
 varying vec2 vUv;
 void main() {
-  vec3 tansTangent = normalize(tangent).xyz;
+  vec3 tansTangent = normalize(tangent.xyz);
   vec3 bitangent = normalize(cross(normal, tansTangent) * tangent.w);
   mat3 tbn = mat3(tansTangent, bitangent, normal);
   vec3 aveNormal = normalize(tbn * _uv7);
@@ -17,7 +17,7 @@ void main() {
   vec3 ndcNormal = clipNormal.xyz;
   float aspect = abs(uResolution.y / uResolution.x);
   clipNormal.x *= aspect;
-  float clampW = (1. / clipNormal.w, .7, 1.);
+  float clampW = (1. / clipPosition.w, .7, 1.);
   clipPosition.xy += 0.01 * uOutLineWidth * ndcNormal.xy * color.a * clampW;
   clipPosition.z += 0.0001 * ndcNormal.z;
   csm_PositionRaw = clipPosition;
