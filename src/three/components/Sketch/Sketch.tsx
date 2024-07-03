@@ -108,7 +108,7 @@ const Sketch = () => {
 
   useControls("Light", {
     rotation: {
-      value: 0,
+      value: 5.31,
       min: 0,
       max: Math.PI * 2,
       step: Math.PI / 100,
@@ -166,7 +166,7 @@ const Sketch = () => {
   // });
   const { color, int } = useControls("Light", {
     color: {
-      value: "#b15f5f",
+      value: "#a08d8d",
     },
     int: {
       value: 0.7,
@@ -185,25 +185,25 @@ const Sketch = () => {
     glowColor,
   } = useControls("Bloom", {
     intensity: {
-      value: 2,
+      value: .3,
       min: 0,
       max: 10,
       step: 0.01,
     },
     radius: {
-      value: 0.97,
+      value: 0,
       min: 0,
       max: 10,
       step: 0.01,
     },
     luminanceThreshold: {
-      value: 0.9,
+      value: 0.61,
       min: 0,
       max: 1,
       step: 0.01,
     },
     luminanceSmoothing: {
-      value: 0.56,
+      value: 0.05,
       min: 0,
       max: 1,
       step: 0.01,
@@ -215,7 +215,7 @@ const Sketch = () => {
       step: 1,
     },
     glowColor: {
-      value: "#fff0e5",
+      value: "#d8b2b2",
     },
   });
 
@@ -275,7 +275,7 @@ const Sketch = () => {
       step: 0.01,
     },
     BlackTightnessC: {
-      value: 1.33,
+      value: 1.69,
       min: 1,
       max: 3,
       step: 0.01,
