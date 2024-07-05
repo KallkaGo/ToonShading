@@ -54,6 +54,8 @@ class BloomEffect extends Effect {
         ["glowColor", new Uniform(new Color(glowColor))],
       ]),
     });
+
+    console.log("intensity", intensity);
     tempRt?.dispose();
     tempRt = new WebGLRenderTarget(innerWidth, innerHeight, {
       samples: 4,
@@ -81,9 +83,10 @@ class BloomEffect extends Effect {
           vec4 color = texture2D(inputBuffer, vUv);
           float luma = luminance(color.rgb);
           luma = smoothstep(luminanceThreshold, clamp(luminanceThreshold + luminanceSmoothing,0.,1.), luma);
+          vec3 col = max(color.rgb- luminanceThreshold,0.);
           // float v = step(luminanceThreshold, luminance(color.rgb));
           // float v = clamp(luminance(color.rgb) - luminanceThreshold, 0.0, 1.0);
-          gl_FragColor = vec4(color.rgb * luma, color.a);
+          gl_FragColor = vec4(col, color.a);
         }
       `,
       uniforms: {
@@ -113,7 +116,7 @@ class BloomEffect extends Effect {
 
 const Bloom: FC<IProps> = forwardRef((props, ref) => {
   const effect = useMemo(() => new BloomEffect(props), [JSON.stringify(props)]);
-  return <primitive object={effect} dispose={null} ref={ref} />;
+  return <primitive object={effect} ref={ref} />;
 });
 
 export { Bloom };

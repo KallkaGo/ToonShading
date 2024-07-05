@@ -61,7 +61,7 @@ void main() {
   vec3 rampColor = mix(texture2D(uRampMap, rampNightUV), texture2D(uRampMap, rampDayUV), isDay).rgb;
 
   vec3 col = csm_DiffuseColor.rgb;
-  vec3 darkCol = col * rampColor;
+  vec3 darkCol = col * rampColor * .85;
 
   csm_Emissive = mix(darkCol, col, sdf);
   // csm_Emissive = vec3(sdf);

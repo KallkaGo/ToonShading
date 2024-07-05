@@ -93,7 +93,7 @@ void main() {
   vec4 baseColor = csm_DiffuseColor;
 
   vec3 grayShadowColor = baseColor.rgb * rampGreyColor * uShadowColor;
-  vec3 darkShadowColor = baseColor.rgb * rampDarkColor * uShadowColor;
+  vec3 darkShadowColor = baseColor.rgb * rampDarkColor * uShadowColor * .85;
 
   /* light.g > 0.5的部分受光照影响 */
   vec3 diffuse = vec3(0.);

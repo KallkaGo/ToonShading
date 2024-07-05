@@ -35,13 +35,10 @@ import OtherfragmentShader from "../shader/body/fragment.glsl";
 import outlineVertexShader from "../shader/outline/vertex.glsl";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useControls } from "leva";
-import {
-  EffectComposer,
-  ToneMapping,
-  Bloom,
-} from "@react-three/postprocessing";
+import { EffectComposer } from "@react-three/postprocessing";
 import GTToneMap from "../effect/GTToneMap";
 import { Bloom as CustomBloom } from "../effect/Bloom";
+import { ToneMap } from "../effect/ToneMap";
 
 const Sketch = () => {
   const ayakaGltf = useGLTF("/ayaka.glb");
@@ -101,7 +98,7 @@ const Sketch = () => {
   const outlineUniforms = useMemo(
     () => ({
       uResolution: new Uniform(new Vector2()),
-      uOutLineWidth: new Uniform(0.2),
+      uOutLineWidth: new Uniform(0.25),
     }),
     []
   );
@@ -166,10 +163,10 @@ const Sketch = () => {
   // });
   const { color, int } = useControls("Light", {
     color: {
-      value: "#a08d8d",
+      value: "#e5cebe",
     },
     int: {
-      value: 0.7,
+      value: 0.49,
       min: 0,
       max: 2,
       step: 0.01,
@@ -185,19 +182,19 @@ const Sketch = () => {
     glowColor,
   } = useControls("Bloom", {
     intensity: {
-      value: .3,
+      value: 1.7,
       min: 0,
       max: 10,
       step: 0.01,
     },
     radius: {
       value: 0,
-      min: 0,
+      min: -10,
       max: 10,
       step: 0.01,
     },
     luminanceThreshold: {
-      value: 0.61,
+      value: 0.75,
       min: 0,
       max: 1,
       step: 0.01,
@@ -209,7 +206,7 @@ const Sketch = () => {
       step: 0.01,
     },
     iteration: {
-      value: 4,
+      value: 3,
       min: 1,
       max: 10,
       step: 1,
@@ -249,7 +246,7 @@ const Sketch = () => {
     },
   });
 
-  const gtProps = useControls("ToneMap", {
+  const gtProps = useControls("ToneMapGT", {
     MaxLuminanice: {
       value: 2,
       min: 1,
@@ -263,13 +260,13 @@ const Sketch = () => {
       step: 0.01,
     },
     LinearSectionStart: {
-      value: 0.38,
+      value: 0.1,
       min: 0,
       max: 1,
       step: 0.01,
     },
     LinearSectionLength: {
-      value: 0.82,
+      value: 0.12,
       min: 0,
       max: 0.99,
       step: 0.01,
@@ -284,9 +281,18 @@ const Sketch = () => {
       value: 0.0,
       min: 0,
       max: 1,
-      step: 0.01,
+      step: 0.25,
     },
     Enabled: true,
+  });
+
+  const { exposure } = useControls("ToneMap", {
+    exposure: {
+      value: 1,
+      min: 0,
+      max: 10,
+      step: 0.01,
+    },
   });
 
   useEffect(() => {
@@ -389,7 +395,7 @@ const Sketch = () => {
       {/* <primitive object={gltf.scene} scale={[2, 2, 2]} /> */}
       {/* <Environment preset={"city"} /> */}
       <ambientLight intensity={int} color={color} />
-      <ambientLight intensity={0.25} color={"red"} />
+      {/* <ambientLight intensity={0.25} color={"red"} /> */}
 
       <Sky
         sunPosition={[0, 0, -1]}
@@ -411,21 +417,7 @@ const Sketch = () => {
           <meshBasicMaterial color={"hotpink"}></meshBasicMaterial>
         </mesh>
       </group>
-      <EffectComposer disableNormalPass frameBufferType={HalfFloatType}>
-        {/* <Bloom
-          luminanceThreshold={luminanceThreshold}
-          luminanceSmoothing={luminanceSmoothing}
-          intensity={intensity}
-          mipmapBlur
-          radius={0.3}
-    
-        /> */}
-        {/* <SelectiveBloom
-          ref={bloomRef}
-          luminanceThreshold={threshold}
-          luminanceSmoothing={luminanceSmoothing}
-          intensity={intensity}
-        /> */}
+      <EffectComposer disableNormalPass>
         <CustomBloom
           intensity={intensity}
           luminanceThreshold={luminanceThreshold}
@@ -435,6 +427,7 @@ const Sketch = () => {
           glowColor={glowColor}
         />
         <GTToneMap {...gtProps} />
+        {/* <ToneMap exposure={exposure} /> */}
       </EffectComposer>
     </>
   );
