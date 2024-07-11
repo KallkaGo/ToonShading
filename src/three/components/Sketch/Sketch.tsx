@@ -420,7 +420,7 @@ const Sketch = () => {
           <meshBasicMaterial color={"hotpink"}></meshBasicMaterial>
         </mesh>
       </group>
-      <EffectComposer disableNormalPass enabled={false}>
+      <EffectComposer disableNormalPass enabled={true}>
         <CustomBloom
           intensity={intensity}
           luminanceThreshold={luminanceThreshold}
