@@ -1,7 +1,7 @@
 import { useFBO } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { useMemo } from "react"
-import { DepthTexture, ShaderMaterial, Texture, Uniform } from "three"
+import { DepthFormat, DepthTexture, NearestFilter, ShaderMaterial, Texture, Uniform, UnsignedByteType, UnsignedShortType } from "three"
 import vertexShader from '@/three/components/shader/depthTex/vertex.glsl'
 import fragmentShader from '@/three/components/shader/depthTex/fragment.glsl'
 import { FullScreenQuad } from "three/examples/jsm/Addons.js"
@@ -16,19 +16,31 @@ const useDepthTexture = (width: number, height: number) => {
 
   const rt1 = useFBO(width, height, {
     depthBuffer: true,
+    stencilBuffer: false,
     depthTexture: new DepthTexture(width, height),
+    generateMipmaps: false,
+    minFilter: NearestFilter,
+    magFilter: NearestFilter,
   })
+  rt1.depthTexture.format = DepthFormat
+  rt1.depthTexture.type = UnsignedShortType
 
   const rt2 = useFBO(width, height, {
-    depthBuffer: true,
-    depthTexture: new DepthTexture(width, height),
+    depthBuffer: false,
+    stencilBuffer: false,
+    type: UnsignedByteType,
+    generateMipmaps: false,
+    minFilter: NearestFilter,
+    magFilter: NearestFilter,
+    samples: 8
   })
+
 
   const uniforms = useMemo(() => ({
     tDiffuse: new Uniform(rt1.texture),
     tDepth: new Uniform(rt1.depthTexture),
-    cameraFar: new Uniform(camera.far),
-    cameraNear: new Uniform(camera.near)
+    cameraNear: new Uniform(1),
+    cameraFar: new Uniform(10)
   }), [])
 
   const material = useMemo(() => new ShaderMaterial({
@@ -41,6 +53,9 @@ const useDepthTexture = (width: number, height: number) => {
 
   useFrame((state, delta) => {
     const { gl, scene } = state
+    const dpr = gl.getPixelRatio()
+    rt1.setSize(innerWidth * dpr, innerHeight * dpr)
+    rt2.setSize(innerWidth * dpr, innerHeight * dpr)
     gl.setRenderTarget(rt1)
     gl.render(scene, camera)
     gl.setRenderTarget(rt2)
