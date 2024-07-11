@@ -39,6 +39,7 @@ import { EffectComposer } from "@react-three/postprocessing";
 import GTToneMap from "../effect/GTToneMap";
 import { Bloom as CustomBloom } from "../effect/Bloom";
 import { ToneMap } from "../effect/ToneMap";
+import { useDepthTexture } from "@utils/useDepthTexture";
 
 const Sketch = () => {
   const ayakaGltf = useGLTF("/ayaka.glb");
@@ -388,6 +389,8 @@ const Sketch = () => {
     outlineUniforms.uResolution.value.set(innerWidth, innerHeight);
   });
 
+  const depthTex = useDepthTexture(innerWidth, innerHeight);
+
   return (
     <>
       <OrbitControls domElement={controlDom} />
@@ -417,7 +420,7 @@ const Sketch = () => {
           <meshBasicMaterial color={"hotpink"}></meshBasicMaterial>
         </mesh>
       </group>
-      <EffectComposer disableNormalPass>
+      <EffectComposer disableNormalPass enabled={false}>
         <CustomBloom
           intensity={intensity}
           luminanceThreshold={luminanceThreshold}
