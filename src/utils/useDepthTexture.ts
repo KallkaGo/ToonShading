@@ -19,8 +19,6 @@ const useDepthTexture = (width: number, height: number) => {
     stencilBuffer: false,
     depthTexture: new DepthTexture(width, height),
     generateMipmaps: false,
-    minFilter: NearestFilter,
-    magFilter: NearestFilter,
     format: RGBAFormat,
   })
   rt1.depthTexture.format = DepthFormat
@@ -29,10 +27,7 @@ const useDepthTexture = (width: number, height: number) => {
   const rt2 = useFBO(width, height, {
     depthBuffer: false,
     stencilBuffer: false,
-    type: UnsignedByteType,
     generateMipmaps: false,
-    minFilter: NearestFilter,
-    magFilter: NearestFilter,
     samples: 16,
     format: RGBAFormat,
   })
@@ -41,7 +36,7 @@ const useDepthTexture = (width: number, height: number) => {
   const uniforms = useMemo(() => ({
     tDiffuse: new Uniform(rt1.texture),
     tDepth: new Uniform(rt1.depthTexture),
-    cameraNear: new Uniform(.1),
+    cameraNear: new Uniform(1),
     cameraFar: new Uniform(10)
   }), [])
 

@@ -18,6 +18,7 @@ uniform float uNoMetallic;
 uniform float uMetallic;
 uniform float uTime;
 uniform float uRimLightWidth;
+uniform float uRimLightIntensity;
 
 float RampMapRow0 = 1.;
 float RampMapRow1 = 4.;
@@ -132,7 +133,7 @@ void main() {
   float depthDiff = abs(offsetDepth - currentDepth);
   // float rimIntensity = step(.12, depthDiff);
   float rimIntensity = smoothstep(.12, 1., depthDiff);
-  vec3 rimLight = diffuse * rimIntensity * .2;
+  vec3 rimLight = diffuse * rimIntensity * uRimLightIntensity;
 
   /* 自发光 */
   vec4 emissiveTex = texture2D(uEmissiveMap, vUv);

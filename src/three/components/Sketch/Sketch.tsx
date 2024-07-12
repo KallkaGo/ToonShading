@@ -35,10 +35,9 @@ import OtherfragmentShader from "../shader/body/fragment.glsl";
 import outlineVertexShader from "../shader/outline/vertex.glsl";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useControls } from "leva";
-import { EffectComposer } from "@react-three/postprocessing";
+import { EffectComposer, SMAA } from "@react-three/postprocessing";
 import GTToneMap from "../effect/GTToneMap";
 import { Bloom as CustomBloom } from "../effect/Bloom";
-import { ToneMap } from "../effect/ToneMap";
 import { useDepthTexture } from "@utils/useDepthTexture";
 
 const Sketch = () => {
@@ -76,7 +75,6 @@ const Sketch = () => {
 
   const ayakaRef = useRef<any>(null);
   const groupRef = useRef<Group>(null);
-  const bloomRef = useRef<any>(null);
   const controlDom = useInteractStore((state) => state.controlDom);
   const scene = useThree((state) => state.scene);
 
@@ -92,6 +90,7 @@ const Sketch = () => {
       uNoMetallic: new Uniform(1),
       uMetallic: new Uniform(0.5),
       uRimLightWidth: new Uniform(1),
+      uRimLightIntensity: new Uniform(1),
       uTime: new Uniform(0),
     }),
     []
@@ -129,40 +128,6 @@ const Sketch = () => {
     },
   });
 
-  // const { intensity, threshold, luminanceSmoothing } = useControls("bloom", {
-  //   intensity: {
-  //     value: 1.41,
-  //     min: 0,
-  //     max: 10,
-  //     step: 0.01,
-  //   },
-  //   radius: {
-  //     value: 0.15,
-  //     min: 0,
-  //     max: 1,
-  //     step: 0.01,
-  //   },
-  //   threshold: { value: 0.8, min: 0, max: 1, step: 0.01 },
-  //   luminanceSmoothing: { value: 0.56, min: 0, max: 1, step: 0.01 },
-  //   ignoreBackground: {
-  //     value: true,
-  //     onChange: (v) => {
-  //       // bloomRef.current.ignoreBackground = v;
-  //     },
-  //   },
-  //   filter: {
-  //     value: true,
-  //     onChange: (v) => {
-  //       // bloomRef.current.luminancePass.enabled = v;
-  //     },
-  //   },
-  //   inverted: {
-  //     value: true,
-  //     onChange: (v) => {
-  //       // bloomRef.current.inverted = v;
-  //     },
-  //   },
-  // });
   const { color, int } = useControls("Light", {
     color: {
       value: "#e5cebe",
@@ -258,6 +223,15 @@ const Sketch = () => {
         uniforms.uRimLightWidth.value = v;
       },
     },
+    intensity: {
+      value: 0.5,
+      min: 0,
+      max: 10,
+      step: 0.01,
+      onChange: (v) => {
+        uniforms.uRimLightIntensity.value = v;
+      }
+    }
   });
 
   const gtProps = useControls("ToneMapGT", {
@@ -310,7 +284,6 @@ const Sketch = () => {
   });
 
   useEffect(() => {
-    // uniforms.uDepthTexture.value = depthTexture;
     const backModel = ayakaGltf.scene.clone(true);
     ayakaGltf.scene.traverse((child) => {
       if (child instanceof Mesh) {
@@ -391,7 +364,7 @@ const Sketch = () => {
       }
     });
     backModel.position.set(0, -0.7, 0);
-    // scene.add(backModel);
+    scene.add(backModel);
     useLoadedStore.setState({ ready: true });
   }, []);
 
@@ -427,7 +400,7 @@ const Sketch = () => {
       />
 
       <group ref={groupRef} visible={false}>
-        <mesh position={[0, 0, 1]} scale={[0.2, 0.2, 0.2]}>
+        <mesh position={[0, 10, 10]} scale={[0.2, 0.2, 0.2]}>
           <sphereGeometry></sphereGeometry>
           <meshBasicMaterial color={"hotpink"}></meshBasicMaterial>
         </mesh>
@@ -442,7 +415,7 @@ const Sketch = () => {
           glowColor={glowColor}
         />
         <GTToneMap {...gtProps} />
-        {/* <ToneMap exposure={exposure} /> */}
+        <SMAA />
       </EffectComposer>
     </>
   );
