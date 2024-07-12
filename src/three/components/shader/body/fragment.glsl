@@ -3,18 +3,21 @@ varying vec3 vWorldNormal;
 varying vec3 vWorldTangent;
 varying vec3 vWorldBitangent;
 varying vec3 vDirWs;
-varying vec3 vViewNormal;
 uniform vec3 uLightPosition;
+varying vec4 vScreenPos;
+varying mat4 vViewMatrix;
 uniform sampler2D uLightMap;
 uniform sampler2D uRampMap;
 uniform sampler2D uMetalMap;
 uniform sampler2D uNormalMap;
 uniform sampler2D uEmissiveMap;
+uniform sampler2D uDepthTexture;
 uniform float uIsDay;
 uniform vec3 uShadowColor;
 uniform float uNoMetallic;
 uniform float uMetallic;
 uniform float uTime;
+uniform float uRimLightWidth;
 
 float RampMapRow0 = 1.;
 float RampMapRow1 = 4.;
@@ -33,11 +36,16 @@ void main() {
   mat3 tbn = mat3(normalize(vWorldTangent), normalize(vWorldBitangent), normalize(vWorldNormal));
 
   vec3 worldNormal = normalize(tbn * normalTs);
+  vec3 viewNormal = (vViewMatrix * vec4(worldNormal, 0.)).xyz;
+
+  /* Screen Pos */
+  vec2 scrPos = vScreenPos.xy / vScreenPos.w;
+  vec2 scrOffsetPos = scrPos + viewNormal.xy * uRimLightWidth * 0.01;
 
   vec3 dirL = normalize(uLightPosition);
   vec3 hDirWS = normalize(vDirWs + dirL);
 
-  vec2 matcapUV = (normalize(vViewNormal.xy) + 1.) * .5;
+  vec2 matcapUV = (viewNormal.xy + 1.) * .5;
 
   float NDotL = dot(worldNormal, dirL); //lambert
 
@@ -118,20 +126,27 @@ void main() {
   float fresnel = clamp(pow(1. - NdotV, 7.), 0., .5);
 
   /* 边缘光 */
-  vec3 rimLight = baseColor.rgb * fresnel;
+  // vec3 rimLight = baseColor.rgb * fresnel;
+  float offsetDepth = texture2D(uDepthTexture, scrOffsetPos).r;
+  float currentDepth = texture2D(uDepthTexture, scrPos).r;
+  float depthDiff = abs(offsetDepth - currentDepth);
+  // float rimIntensity = step(.12, depthDiff);
+  float rimIntensity = smoothstep(.12, 1., depthDiff);
+  vec3 rimLight = diffuse * rimIntensity * .2;
+
   /* 自发光 */
   vec4 emissiveTex = texture2D(uEmissiveMap, vUv);
   emissiveTex.a = smoothstep(0., 1., emissiveTex.a);
 
   vec3 glow = mix(vec3(0.), emissiveTex.rgb * abs(sin(uTime)) * .15, emissiveTex.a);
 
-  vec3 albedo = diffuse + finalSpec + metallic + glow;
+  vec3 albedo = diffuse + finalSpec + metallic + glow + rimLight;
 
   if(baseColor.a < .5) {
     discard;
   }
 
-  csm_Emissive = albedo;
+  csm_Emissive = vec3(albedo);
   csm_Roughness = 1.;
   csm_Metalness = 0.;
 }

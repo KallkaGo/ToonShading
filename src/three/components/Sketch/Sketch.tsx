@@ -91,6 +91,7 @@ const Sketch = () => {
       uMetalMap: new Uniform(metalMap),
       uNoMetallic: new Uniform(1),
       uMetallic: new Uniform(0.5),
+      uRimLightWidth: new Uniform(1),
       uTime: new Uniform(0),
     }),
     []
@@ -99,7 +100,7 @@ const Sketch = () => {
   const outlineUniforms = useMemo(
     () => ({
       uResolution: new Uniform(new Vector2()),
-      uOutLineWidth: new Uniform(0.25),
+      uOutLineWidth: new Uniform(0.4),
     }),
     []
   );
@@ -247,6 +248,18 @@ const Sketch = () => {
     },
   });
 
+  useControls("RimLight", {
+    RimLightWidth: {
+      value: 0.2,
+      min: 0,
+      max: 1,
+      step: 0.01,
+      onChange: (v) => {
+        uniforms.uRimLightWidth.value = v;
+      },
+    },
+  });
+
   const gtProps = useControls("ToneMapGT", {
     MaxLuminanice: {
       value: 2,
@@ -297,6 +310,7 @@ const Sketch = () => {
   });
 
   useEffect(() => {
+    // uniforms.uDepthTexture.value = depthTexture;
     const backModel = ayakaGltf.scene.clone(true);
     ayakaGltf.scene.traverse((child) => {
       if (child instanceof Mesh) {
@@ -348,6 +362,7 @@ const Sketch = () => {
             child.material.uniforms.uEmissiveMap = new Uniform(bodyEmissiveMap);
           }
         }
+        child.material.uniforms.uDepthTexture = new Uniform(depthTexture);
       }
     });
     console.log("ayakaGltf.scene", ayakaGltf.scene);
@@ -376,9 +391,11 @@ const Sketch = () => {
       }
     });
     backModel.position.set(0, -0.7, 0);
-    scene.add(backModel);
+    // scene.add(backModel);
     useLoadedStore.setState({ ready: true });
   }, []);
+
+  const { depthTexture } = useDepthTexture(innerWidth, innerHeight);
 
   useFrame((state, delta) => {
     delta %= 1;
@@ -389,16 +406,11 @@ const Sketch = () => {
     outlineUniforms.uResolution.value.set(innerWidth, innerHeight);
   });
 
-  const depthTex = useDepthTexture(innerWidth, innerHeight);
-
   return (
     <>
       <OrbitControls domElement={controlDom} />
       <color attach={"background"} args={["ivory"]} />
-      {/* <primitive object={gltf.scene} scale={[2, 2, 2]} /> */}
-      {/* <Environment preset={"city"} /> */}
       <ambientLight intensity={int} color={color} />
-      {/* <ambientLight intensity={0.25} color={"red"} /> */}
 
       <Sky
         sunPosition={[0, 0, -1]}
