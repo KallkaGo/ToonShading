@@ -9,16 +9,6 @@ uniform vec3 uLeftVec;
 
 float RampRow = 5.;
 
-vec3 multiplySampler(sampler2D tex, vec2 texCoord) {
-  vec3 texColor1 = texture2D(tex, texCoord).rgb;
-  vec3 texColor2 = texture2D(tex, texCoord + vec2(0.005, 0.0)).rgb;
-  vec3 texColor3 = texture2D(tex, texCoord + vec2(-0.005, 0.0)).rgb;
-  vec3 texColor4 = texture2D(tex, texCoord + vec2(0.0, 0.005)).rgb;
-  vec3 texColor5 = texture2D(tex, texCoord + vec2(0.0, -0.005)).rgb;
-  vec3 faceShadowTex = (texColor1 + texColor2 + texColor3 + texColor4 + texColor5) / 5.0;
-  return faceShadowTex;
-}
-
 void main() {
   /* 处理数据 */
   vec3 forwardVec = normalize(uForwardVec);

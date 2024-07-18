@@ -6,27 +6,19 @@ import {
   useTexture,
 } from "@react-three/drei";
 import { useInteractStore, useLoadedStore } from "@utils/Store";
-import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import {
   BackSide,
   Color,
-  FrontSide,
   Group,
-  HalfFloatType,
   LinearSRGBColorSpace,
   Mesh,
-  MeshBasicMaterial,
   MeshStandardMaterial,
-  Object3D,
   RepeatWrapping,
   SRGBColorSpace,
-  ShaderMaterial,
   Uniform,
-  UnsignedByteType,
   Vector2,
   Vector3,
-  Texture,
-  DoubleSide,
 } from "three";
 import CustomShaderMaterial from "three-custom-shader-material/vanilla";
 import vertexShader from "../shader/vertex.glsl";
@@ -104,18 +96,6 @@ const Sketch = () => {
     []
   );
 
-  useControls("Light", {
-    rotation: {
-      value: 5.31,
-      min: 0,
-      max: Math.PI * 2,
-      step: Math.PI / 100,
-      onChange: (v) => {
-        groupRef.current!.rotation.y = v;
-      },
-    },
-  });
-
   useControls("Time", {
     time: {
       value: 1,
@@ -137,6 +117,15 @@ const Sketch = () => {
       min: 0,
       max: 2,
       step: 0.01,
+    },
+    rotation: {
+      value: 5.31,
+      min: 0,
+      max: Math.PI * 2,
+      step: Math.PI / 100,
+      onChange: (v) => {
+        groupRef.current!.rotation.y = v;
+      },
     },
   });
 
@@ -230,8 +219,8 @@ const Sketch = () => {
       step: 0.01,
       onChange: (v) => {
         uniforms.uRimLightIntensity.value = v;
-      }
-    }
+      },
+    },
   });
 
   const gtProps = useControls("ToneMapGT", {
@@ -274,14 +263,16 @@ const Sketch = () => {
     Enabled: true,
   });
 
-  const { exposure } = useControls("ToneMap", {
-    exposure: {
-      value: 1,
-      min: 0,
-      max: 10,
-      step: 0.01,
-    },
-  });
+  // const { exposure } = useControls("ToneMap", {
+  //   exposure: {
+  //     value: 1,
+  //     min: 0,
+  //     max: 10,
+  //     step: 0.01,
+  //   },
+  // });
+
+  const { depthTexture } = useDepthTexture(innerWidth, innerHeight);
 
   useEffect(() => {
     const backModel = ayakaGltf.scene.clone(true);
@@ -367,8 +358,6 @@ const Sketch = () => {
     scene.add(backModel);
     useLoadedStore.setState({ ready: true });
   }, []);
-
-  const { depthTexture } = useDepthTexture(innerWidth, innerHeight);
 
   useFrame((state, delta) => {
     delta %= 1;

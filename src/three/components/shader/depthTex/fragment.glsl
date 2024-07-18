@@ -17,6 +17,5 @@ void main() {
   float depth = readDepth(tDepth, vUv);
   gl_FragColor.rgb = 1.0 - vec3(depth);
   // gl_FragColor.rgb = vec3(depth);
-
   gl_FragColor.a = 1.0;
 }
