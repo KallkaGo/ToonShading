@@ -17,8 +17,8 @@ void main() {
   vec3 ndcNormal = clipNormal.xyz;
   float aspect = abs(uResolution.y / uResolution.x);
   clipNormal.x *= aspect;
-  float clampW = (1. / clipPosition.w, .7, 1.);
-  clipPosition.xy += 0.01 * uOutLineWidth * ndcNormal.xy * color.a * clampW;
+  float ctrlCSw = clamp(clipPosition.w, .5, 3.);
+  clipPosition.xy += 0.01 * uOutLineWidth * ndcNormal.xy * color.a * ctrlCSw;
   clipPosition.z += 0.0001 * ndcNormal.z;
   csm_PositionRaw = clipPosition;
   vNor = aveNormal;
