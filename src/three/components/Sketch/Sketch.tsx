@@ -343,7 +343,7 @@ const Sketch = () => {
           void main(){
             vec4 baseColor = csm_DiffuseColor;
             if(baseColor.a < 0.5) discard;
-            csm_FragColor = vec4(baseColor.rgb * .2, 1.);
+            csm_FragColor = vec4(baseColor.rgb * .15, 1.);
           }
           `,
           side: BackSide,
@@ -394,7 +394,7 @@ const Sketch = () => {
           <meshBasicMaterial color={"hotpink"}></meshBasicMaterial>
         </mesh>
       </group>
-      <EffectComposer disableNormalPass enabled={true}>
+      <EffectComposer disableNormalPass enabled={true}  >
         <CustomBloom
           intensity={intensity}
           luminanceThreshold={luminanceThreshold}
