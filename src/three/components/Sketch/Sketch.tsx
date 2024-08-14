@@ -108,6 +108,18 @@ const Sketch = () => {
     },
   });
 
+  useControls('outline',{
+    lineWidth: {
+      value:0.3,
+      min:0,
+      max:1,
+      step:0.01,
+      onChange:(v)=>{
+        outlineUniforms.uOutLineWidth.value = v
+      }
+    }
+  })
+
   const { color, int } = useControls("Light", {
     color: {
       value: "#e5cebe",
