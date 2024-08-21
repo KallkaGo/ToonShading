@@ -69,6 +69,7 @@ const Sketch = () => {
   const groupRef = useRef<Group>(null);
   const controlDom = useInteractStore((state) => state.controlDom);
   const scene = useThree((state) => state.scene);
+  const camera = useThree((state) => state.camera);
 
   const uniforms = useMemo(
     () => ({
@@ -84,6 +85,8 @@ const Sketch = () => {
       uRimLightWidth: new Uniform(1),
       uRimLightIntensity: new Uniform(1),
       uTime: new Uniform(0),
+      uNear: new Uniform(camera.near),
+      uFar: new Uniform(camera.far),
     }),
     []
   );
@@ -216,7 +219,7 @@ const Sketch = () => {
 
   useControls("RimLight", {
     RimLightWidth: {
-      value: 0.2,
+      value: 0.12,
       min: 0,
       max: 1,
       step: 0.01,

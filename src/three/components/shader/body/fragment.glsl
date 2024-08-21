@@ -19,12 +19,20 @@ uniform float uMetallic;
 uniform float uTime;
 uniform float uRimLightWidth;
 uniform float uRimLightIntensity;
+uniform float uNear;
+uniform float uFar;
 
 float RampMapRow0 = 1.;
 float RampMapRow1 = 4.;
 float RampMapRow2 = 3.;
 float RampMapRow3 = 5.;
 float RampMapRow4 = 2.;
+
+float readDepth(sampler2D depthSampler, vec2 coord) {
+  float fragCoordZ = texture2D(depthSampler, coord).x;
+  float viewZ = perspectiveDepthToViewZ(fragCoordZ, uNear, uFar);
+  return 1. - viewZToOrthographicDepth(viewZ, uNear, uFar);
+}
 
 void main() {
   /* 处理需要的数据 */
@@ -128,8 +136,8 @@ void main() {
 
   /* 边缘光 */
   // vec3 rimLight = baseColor.rgb * fresnel;
-  float offsetDepth = texture2D(uDepthTexture, scrOffsetPos).r;
-  float currentDepth = texture2D(uDepthTexture, scrPos).r;
+  float offsetDepth = readDepth(uDepthTexture, scrOffsetPos);
+  float currentDepth = readDepth(uDepthTexture, scrPos);
   float depthDiff = abs(offsetDepth - currentDepth);
   // float rimIntensity = step(.12, depthDiff);
   float rimIntensity = smoothstep(.12, 1., depthDiff);
