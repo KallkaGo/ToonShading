@@ -1,3 +1,9 @@
 # ToonShading
 Unity Toon Shading Webgl replica
-![QQ截图20240705182721](https://github.com/KallkaGo/ToonShading/assets/82202033/1da9d305-0304-4af0-a362-df52385b47b6)
+
+Game：
+![game](https://github.com/user-attachments/assets/00b81ed8-2f2a-4534-8ae1-e01e71b72563)
+Demo:
+![demo](https://github.com/user-attachments/assets/f88dfc65-f65a-4442-829d-8851c40ecc85)
+
+
