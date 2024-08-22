@@ -17,13 +17,7 @@ const useDepthTexture = (width: number, height: number) => {
   rt1.depthTexture.format = DepthFormat
   rt1.depthTexture.type = UnsignedShortType
 
-  const rt2 = useFBO(width, height, {
-    depthBuffer: false,
-    stencilBuffer: false,
-    generateMipmaps: false,
-    samples: 16,
-    format: RGBAFormat,
-  })
+
 
   const material = useMemo(() => new MeshDepthMaterial(), [])
 
@@ -31,7 +25,6 @@ const useDepthTexture = (width: number, height: number) => {
     const { gl, scene } = state
     const dpr = gl.getPixelRatio()
     rt1.setSize(innerWidth * dpr, innerHeight * dpr)
-    rt2.setSize(innerWidth * dpr, innerHeight * dpr)
     scene.overrideMaterial = material
     gl.setRenderTarget(rt1)
     gl.render(scene, camera)

@@ -31,7 +31,7 @@ float RampMapRow4 = 2.;
 float readDepth(sampler2D depthSampler, vec2 coord) {
   float fragCoordZ = texture2D(depthSampler, coord).x;
   float viewZ = perspectiveDepthToViewZ(fragCoordZ, uNear, uFar);
-  return 1. - viewZToOrthographicDepth(viewZ, uNear, uFar);
+  return viewZToOrthographicDepth(viewZ, uNear, uFar);
 }
 
 void main() {
@@ -132,16 +132,22 @@ void main() {
 
   vec3 metallic = mix(vec3(0.), texture2D(uMetalMap, matcapUV).rgb * baseColor.rgb, isMetal);
 
-  float fresnel = clamp(pow(1. - NdotV, 7.), 0., .5);
+  float fresnel = 1. - clamp(NdotV, 0., 1.);
+
+  float fresnelClamp = .5;
+
+  fresnel = pow(fresnel, 8.);
+
+  fresnel = fresnel * fresnelClamp + (1. - fresnelClamp);
 
   /* 边缘光 */
   // vec3 rimLight = baseColor.rgb * fresnel;
   float offsetDepth = readDepth(uDepthTexture, scrOffsetPos);
   float currentDepth = readDepth(uDepthTexture, scrPos);
-  float depthDiff = abs(offsetDepth - currentDepth);
+  float depthDiff = clamp(offsetDepth - currentDepth, 0., 1.);
   // float rimIntensity = step(.12, depthDiff);
   float rimIntensity = smoothstep(.12, 1., depthDiff);
-  vec3 rimLight = diffuse * rimIntensity * uRimLightIntensity;
+  vec3 rimLight = diffuse * rimIntensity * uRimLightIntensity * fresnel;
 
   /* 自发光 */
   vec4 emissiveTex = texture2D(uEmissiveMap, vUv);
@@ -156,6 +162,7 @@ void main() {
   }
 
   csm_Emissive = vec3(albedo);
+  // csm_FragColor = vec4(vec3(rimLight), 1.);
   csm_Roughness = 1.;
   csm_Metalness = 0.;
 }

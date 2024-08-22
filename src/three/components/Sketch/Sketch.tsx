@@ -125,10 +125,11 @@ const Sketch = () => {
 
   const { color, int } = useControls("Light", {
     color: {
-      value: "#e5cebe",
+      // #e5cebe
+      value: "#ffffff",
     },
     int: {
-      value: 0.49,
+      value: 0.85,
       min: 0,
       max: 2,
       step: 0.01,
@@ -153,13 +154,15 @@ const Sketch = () => {
     glowColor,
   } = useControls("Bloom", {
     intensity: {
-      value: 1.7,
+      // 1.6
+      value: 2.32,
       min: 0,
       max: 10,
       step: 0.01,
     },
     radius: {
-      value: 0,
+      // 0
+      value: 5,
       min: -10,
       max: 10,
       step: 0.01,
@@ -183,7 +186,8 @@ const Sketch = () => {
       step: 1,
     },
     glowColor: {
-      value: "#d8b2b2",
+      // #d8b2b2
+      value: "#6b3a3a",
     },
   });
 
@@ -219,7 +223,8 @@ const Sketch = () => {
 
   useControls("RimLight", {
     RimLightWidth: {
-      value: 0.12,
+      // 0.12
+      value: 0.2,
       min: 0,
       max: 1,
       step: 0.01,
@@ -228,7 +233,8 @@ const Sketch = () => {
       },
     },
     intensity: {
-      value: 0.5,
+      // 0.5
+      value: 0.9,
       min: 0,
       max: 10,
       step: 0.01,
