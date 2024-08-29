@@ -32,6 +32,7 @@ import GTToneMap from "../effect/GTToneMap";
 import { Bloom as CustomBloom } from "../effect/Bloom";
 import { useDepthTexture } from "@utils/useDepthTexture";
 
+
 const Sketch = () => {
   const ayakaGltf = useGLTF("/ayaka.glb");
   const faceLightMap = useTexture("/Face/faceLightmap.png");
@@ -111,17 +112,17 @@ const Sketch = () => {
     },
   });
 
-  useControls('outline',{
+  useControls("outline", {
     lineWidth: {
-      value:0.3,
-      min:0,
-      max:1,
-      step:0.01,
-      onChange:(v)=>{
-        outlineUniforms.uOutLineWidth.value = v
-      }
-    }
-  })
+      value: 0.3,
+      min: 0,
+      max: 1,
+      step: 0.01,
+      onChange: (v) => {
+        outlineUniforms.uOutLineWidth.value = v;
+      },
+    },
+  });
 
   const { color, int } = useControls("Light", {
     color: {
@@ -415,7 +416,7 @@ const Sketch = () => {
           <meshBasicMaterial color={"hotpink"}></meshBasicMaterial>
         </mesh>
       </group>
-      <EffectComposer disableNormalPass enabled={true}  >
+      <EffectComposer disableNormalPass enabled={true}>
         <CustomBloom
           intensity={intensity}
           luminanceThreshold={luminanceThreshold}
@@ -425,7 +426,6 @@ const Sketch = () => {
           glowColor={glowColor}
         />
         <GTToneMap {...gtProps} />
-        <SMAA />
       </EffectComposer>
     </>
   );
