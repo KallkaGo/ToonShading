@@ -25,13 +25,13 @@ import vertexShader from "../shader/vertex.glsl";
 import FacefragmentShader from "../shader/face/fragment.glsl";
 import OtherfragmentShader from "../shader/body/fragment.glsl";
 import outlineVertexShader from "../shader/outline/vertex.glsl";
+import outlineFragmentShader from "../shader/outline/fragment.glsl";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useControls } from "leva";
 import { EffectComposer, SMAA } from "@react-three/postprocessing";
 import GTToneMap from "../effect/GTToneMap";
 import { Bloom as CustomBloom } from "../effect/Bloom";
 import { useDepthTexture } from "@utils/useDepthTexture";
-
 
 const Sketch = () => {
   const ayakaGltf = useGLTF("/ayaka.glb");
@@ -68,6 +68,7 @@ const Sketch = () => {
 
   const ayakaRef = useRef<any>(null);
   const groupRef = useRef<Group>(null);
+  const LightPosRef = useRef<Vector3>(new Vector3());
   const controlDom = useInteractStore((state) => state.controlDom);
   const scene = useThree((state) => state.scene);
   const camera = useThree((state) => state.camera);
@@ -100,51 +101,83 @@ const Sketch = () => {
     []
   );
 
-  useControls("Time", {
-    time: {
-      value: 1,
-      min: -1,
-      max: 1,
-      step: 0.01,
-      onChange: (v) => {
-        uniforms.uIsDay.value = v;
+  useControls(
+    "DayOrNight",
+    {
+      time: {
+        value: 1,
+        min: -1,
+        max: 1,
+        step: 0.01,
+        onChange: (v) => {
+          uniforms.uIsDay.value = v;
+        },
       },
     },
-  });
+    {
+      collapsed: true,
+    }
+  );
 
-  useControls("outline", {
-    lineWidth: {
-      value: 0.3,
-      min: 0,
-      max: 1,
-      step: 0.01,
-      onChange: (v) => {
-        outlineUniforms.uOutLineWidth.value = v;
+  useControls(
+    "outLine",
+    {
+      lineWidth: {
+        value: 0.3,
+        min: 0,
+        max: 1,
+        step: 0.01,
+        onChange: (v) => {
+          outlineUniforms.uOutLineWidth.value = v;
+        },
       },
     },
-  });
+    {
+      collapsed: true,
+    }
+  );
 
-  const { color, int } = useControls("Light", {
-    color: {
-      // #e5cebe
-      value: "#ffffff",
-    },
-    int: {
-      value: 0.85,
-      min: 0,
-      max: 2,
-      step: 0.01,
-    },
-    rotation: {
-      value: 5.31,
-      min: 0,
-      max: Math.PI * 2,
-      step: Math.PI / 100,
-      onChange: (v) => {
-        groupRef.current!.rotation.y = v;
+  const { color, int } = useControls(
+    "ambientLight",
+    {
+      color: {
+        // #e5cebe
+        value: "#ffffff",
+      },
+      int: {
+        value: 0.85,
+        min: 0,
+        max: 2,
+        step: 0.01,
       },
     },
-  });
+    {
+      collapsed: true,
+    }
+  );
+
+  const { visible, position } = useControls(
+    "Light",
+    {
+      visible: false,
+      position: {
+        value: { x: 0, y: 10, z: 10 },
+        step: 0.01,
+      },
+      rotation: {
+        value: 5.31,
+        min: 0,
+        max: Math.PI * 2,
+        step: Math.PI / 100,
+        onChange: (v) => {
+          groupRef.current!.rotation.y = v;
+        },
+      },
+    },
+    {
+      collapsed: true,
+    }
+  );
 
   const {
     intensity,
@@ -153,146 +186,167 @@ const Sketch = () => {
     iteration,
     luminanceSmoothing,
     glowColor,
-  } = useControls("Bloom", {
-    intensity: {
-      // 1.6
-      value: 2.32,
-      min: 0,
-      max: 10,
-      step: 0.01,
-    },
-    radius: {
-      // 0
-      value: 5,
-      min: -10,
-      max: 10,
-      step: 0.01,
-    },
-    luminanceThreshold: {
-      value: 0.75,
-      min: 0,
-      max: 1,
-      step: 0.01,
-    },
-    luminanceSmoothing: {
-      value: 0.05,
-      min: 0,
-      max: 1,
-      step: 0.01,
-    },
-    iteration: {
-      value: 3,
-      min: 1,
-      max: 10,
-      step: 1,
-    },
-    glowColor: {
-      // #d8b2b2
-      value: "#6b3a3a",
-    },
-  });
-
-  useControls("Shadow", {
-    ShadowColor: {
-      value: "white",
-      onChange: (v) => {
-        uniforms.uShadowColor.value = new Color(v);
+  } = useControls(
+    "Bloom",
+    {
+      intensity: {
+        // 1.6
+        value: 2.32,
+        min: 0,
+        max: 10,
+        step: 0.01,
+      },
+      radius: {
+        // 0
+        value: 5,
+        min: -10,
+        max: 10,
+        step: 0.01,
+      },
+      luminanceThreshold: {
+        value: 0.75,
+        min: 0,
+        max: 1,
+        step: 0.01,
+      },
+      luminanceSmoothing: {
+        value: 0.05,
+        min: 0,
+        max: 1,
+        step: 0.01,
+      },
+      iteration: {
+        value: 3,
+        min: 1,
+        max: 10,
+        step: 1,
+      },
+      glowColor: {
+        // #d8b2b2
+        value: "#6b3a3a",
       },
     },
-  });
+    {
+      collapsed: true,
+    }
+  );
 
-  useControls("Metal", {
-    metallic: {
-      value: 0.2,
-      min: 0,
-      max: 10,
-      step: 0.01,
-      onChange: (v) => {
-        uniforms.uMetallic.value = v;
+  useControls(
+    "Shadow",
+    {
+      ShadowColor: {
+        value: "white",
+        onChange: (v) => {
+          uniforms.uShadowColor.value = new Color(v);
+        },
       },
     },
-    noMetallic: {
-      value: 0.1,
-      min: 0,
-      max: 1,
-      step: 0.01,
-      onChange: (v) => {
-        uniforms.uNoMetallic.value = v;
+    {
+      collapsed: true,
+    }
+  );
+
+  useControls(
+    "Metal",
+    {
+      metallic: {
+        value: 0.2,
+        min: 0,
+        max: 10,
+        step: 0.01,
+        onChange: (v) => {
+          uniforms.uMetallic.value = v;
+        },
+      },
+      noMetallic: {
+        value: 0.1,
+        min: 0,
+        max: 1,
+        step: 0.01,
+        onChange: (v) => {
+          uniforms.uNoMetallic.value = v;
+        },
       },
     },
-  });
+    {
+      collapsed: true,
+    }
+  );
 
-  useControls("RimLight", {
-    RimLightWidth: {
-      // 0.12
-      value: 0.2,
-      min: 0,
-      max: 1,
-      step: 0.01,
-      onChange: (v) => {
-        uniforms.uRimLightWidth.value = v;
+  useControls(
+    "RimLight",
+    {
+      RimLightWidth: {
+        // 0.12
+        value: 0.2,
+        min: 0,
+        max: 1,
+        step: 0.01,
+        onChange: (v) => {
+          uniforms.uRimLightWidth.value = v;
+        },
+      },
+      intensity: {
+        // 0.5
+        value: 0.9,
+        min: 0,
+        max: 10,
+        step: 0.01,
+        onChange: (v) => {
+          uniforms.uRimLightIntensity.value = v;
+        },
       },
     },
-    intensity: {
-      // 0.5
-      value: 0.9,
-      min: 0,
-      max: 10,
-      step: 0.01,
-      onChange: (v) => {
-        uniforms.uRimLightIntensity.value = v;
+    {
+      collapsed: true,
+    }
+  );
+
+  const gtProps = useControls(
+    "ToneMapGT",
+    {
+      MaxLuminanice: {
+        value: 2,
+        min: 1,
+        max: 100,
+        step: 0.01,
       },
+      Contrast: {
+        value: 1,
+        min: 1,
+        max: 5,
+        step: 0.01,
+      },
+      LinearSectionStart: {
+        value: 0.1,
+        min: 0,
+        max: 1,
+        step: 0.01,
+      },
+      LinearSectionLength: {
+        value: 0.12,
+        min: 0,
+        max: 0.99,
+        step: 0.01,
+      },
+      BlackTightnessC: {
+        value: 1.69,
+        min: 1,
+        max: 3,
+        step: 0.01,
+      },
+      BlackTightnessB: {
+        value: 0.0,
+        min: 0,
+        max: 1,
+        step: 0.25,
+      },
+      Enabled: true,
     },
-  });
-
-  const gtProps = useControls("ToneMapGT", {
-    MaxLuminanice: {
-      value: 2,
-      min: 1,
-      max: 100,
-      step: 0.01,
-    },
-    Contrast: {
-      value: 1,
-      min: 1,
-      max: 5,
-      step: 0.01,
-    },
-    LinearSectionStart: {
-      value: 0.1,
-      min: 0,
-      max: 1,
-      step: 0.01,
-    },
-    LinearSectionLength: {
-      value: 0.12,
-      min: 0,
-      max: 0.99,
-      step: 0.01,
-    },
-    BlackTightnessC: {
-      value: 1.69,
-      min: 1,
-      max: 3,
-      step: 0.01,
-    },
-    BlackTightnessB: {
-      value: 0.0,
-      min: 0,
-      max: 1,
-      step: 0.25,
-    },
-    Enabled: true,
-  });
-
-  // const { exposure } = useControls("ToneMap", {
-  //   exposure: {
-  //     value: 1,
-  //     min: 0,
-  //     max: 10,
-  //     step: 0.01,
-  //   },
-  // });
+    {
+      collapsed: true,
+    }
+  );
 
   const { depthTexture } = useDepthTexture(innerWidth, innerHeight);
 
@@ -358,16 +412,7 @@ const Sketch = () => {
           baseMaterial: MeshStandardMaterial,
           uniforms: outlineUniforms,
           vertexShader: outlineVertexShader,
-          fragmentShader: `
-          varying vec2 vUv;
-          uniform vec3 uOutLineColor;
-          uniform sampler2D uDiffuse;
-          void main(){
-            vec4 baseColor = csm_DiffuseColor;
-            if(baseColor.a < 0.5) discard;
-            csm_FragColor = vec4(baseColor.rgb * .15, 1.);
-          }
-          `,
+          fragmentShader: outlineFragmentShader,
           side: BackSide,
           vertexColors: true,
           silent: true,
@@ -383,7 +428,7 @@ const Sketch = () => {
 
   useFrame((state, delta) => {
     delta %= 1;
-    const vec = new Vector3();
+    const vec = LightPosRef.current;
     groupRef.current?.children[0].getWorldPosition(vec);
     uniforms.uLightPosition.value = vec;
     uniforms.uTime.value += delta;
@@ -410,8 +455,11 @@ const Sketch = () => {
         position={[0, -0.7, 0]}
       />
 
-      <group ref={groupRef} visible={false}>
-        <mesh position={[0, 10, 10]} scale={[0.2, 0.2, 0.2]}>
+      <group ref={groupRef} visible={visible}>
+        <mesh
+          position={[position.x, position.y, position.z]}
+          scale={[0.2, 0.2, 0.2]}
+        >
           <sphereGeometry></sphereGeometry>
           <meshBasicMaterial color={"hotpink"}></meshBasicMaterial>
         </mesh>

@@ -56,5 +56,5 @@ void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor)
   float b = GranTurismoTonemapper(inputColor.b);
   vec3 col = vec3(0.);
   col += mix(vec3(inputColor.r, inputColor.g, inputColor.b), vec3(r, g, b), uEnabled);
-  outputColor = vec4(col, 1.);
+  outputColor = vec4(col, inputColor.a);
 }
