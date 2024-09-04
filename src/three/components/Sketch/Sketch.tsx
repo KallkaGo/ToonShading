@@ -36,7 +36,7 @@ import { useDepthTexture } from "@utils/useDepthTexture";
 const Sketch = () => {
   const ayakaGltf = useGLTF("/ayaka.glb");
   const faceLightMap = useTexture("/Face/faceLightmap.png");
-  faceLightMap.wrapS = faceLightMap.wrapT = RepeatWrapping;
+  // faceLightMap.wrapS = faceLightMap.wrapT = RepeatWrapping;
   faceLightMap.generateMipmaps = false;
   faceLightMap.flipY = false;
   const hairLightMap = useTexture("/Hair/light.png");
@@ -145,7 +145,8 @@ const Sketch = () => {
         value: "#ffffff",
       },
       int: {
-        value: 0.85,
+        // 。85
+        value: 1.1,
         min: 0,
         max: 2,
         step: 0.01,
@@ -165,7 +166,7 @@ const Sketch = () => {
         step: 0.01,
       },
       rotation: {
-        value: 5.31,
+        value: 5.37,
         min: 0,
         max: Math.PI * 2,
         step: Math.PI / 100,
