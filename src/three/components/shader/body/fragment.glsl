@@ -162,7 +162,6 @@ void main() {
   }
 
   csm_Emissive = vec3(albedo);
-  // csm_FragColor = vec4(vec3(rimLight), 1.);
   csm_Roughness = 1.;
   csm_Metalness = 0.;
 }

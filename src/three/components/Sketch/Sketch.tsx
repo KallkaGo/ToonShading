@@ -406,7 +406,6 @@ const Sketch = () => {
         child.material.uniforms.uDepthTexture = new Uniform(depthTexture);
       }
     });
-    console.log("ayakaGltf.scene", ayakaGltf.scene);
     backModel.traverse((child) => {
       if (child instanceof Mesh) {
         const mat = new CustomShaderMaterial({
@@ -418,6 +417,7 @@ const Sketch = () => {
           vertexColors: true,
           silent: true,
           map: child.material.map,
+          transparent: true,
         });
         child.material = mat;
       }
@@ -440,7 +440,7 @@ const Sketch = () => {
     <>
       <OrbitControls domElement={controlDom} />
       <color attach={"background"} args={["ivory"]} />
-      <ambientLight intensity={int} color={color} />
+      <ambientLight intensity={int} color={color}  />
 
       <Sky
         sunPosition={[0, 0, -1]}

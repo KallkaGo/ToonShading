@@ -1,10 +1,11 @@
 attribute vec4 tangent;
 attribute vec3 _uv7;
-// attribute vec4 color;
 uniform float uOutLineWidth;
 uniform vec2 uResolution;
 varying vec3 vNor;
 varying vec2 vUv;
+varying float uOpacity;
+
 void main() {
   vec3 tansTangent = normalize(tangent.xyz);
   vec3 bitangent = normalize(cross(normal, tansTangent) * tangent.w);
@@ -20,7 +21,8 @@ void main() {
   /* in Opengl clip space w = -zView  */
   float ctrlCSw = clamp(clipPosition.w, .5, 3.);
   clipPosition.xy += 0.01 * uOutLineWidth * ndcNormal.xy * color.a * ctrlCSw;
-  clipPosition.z += 0.0001 * ndcNormal.z;
+  // clipPosition.z += 0.0001 * ndcNormal.z;
+  uOpacity = step(.001, uOutLineWidth);
   csm_PositionRaw = clipPosition;
   vNor = aveNormal;
   vUv = uv;
