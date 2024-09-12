@@ -207,8 +207,8 @@ const Sketch = () => {
       },
       radius: {
         // 0
-        // 5
-        value: 4,
+        // 4
+        value: 2.74,
         min: -10,
         max: 10,
         step: 0.01,
