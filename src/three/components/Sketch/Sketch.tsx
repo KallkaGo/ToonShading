@@ -200,14 +200,15 @@ const Sketch = () => {
       intensity: {
         // 1.6
         // 2.32
-        value: 4,
+        value: 3.5,
         min: 0,
         max: 10,
         step: 0.01,
       },
       radius: {
         // 0
-        value: 1.2,
+        // 5
+        value: 4,
         min: -10,
         max: 10,
         step: 0.01,
