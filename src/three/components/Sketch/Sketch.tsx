@@ -199,14 +199,15 @@ const Sketch = () => {
     {
       intensity: {
         // 1.6
-        value: 2.32,
+        // 2.32
+        value: 4,
         min: 0,
         max: 10,
         step: 0.01,
       },
       radius: {
         // 0
-        value: 5,
+        value: 1.2,
         min: -10,
         max: 10,
         step: 0.01,
@@ -464,9 +465,8 @@ const Sketch = () => {
   return (
     <>
       <OrbitControls domElement={controlDom} />
-      <color attach={"background"} args={["ivory"]} />
+      <color attach={"background"} args={["black"]} />
       <ambientLight intensity={int} color={color} />
-
       <Sky
         sunPosition={[0, 0, -1]}
         distance={50000}
