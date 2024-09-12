@@ -32,6 +32,7 @@ import { EffectComposer, SMAA } from "@react-three/postprocessing";
 import GTToneMap from "../effect/GTToneMap";
 import { Bloom as CustomBloom } from "../effect/Bloom";
 import { useDepthTexture } from "@utils/useDepthTexture";
+import { SMAAPreset } from "postprocessing";
 
 const Sketch = () => {
   const ayakaGltf = useGLTF("/ayaka.glb");
@@ -89,6 +90,12 @@ const Sketch = () => {
       uTime: new Uniform(0),
       uNear: new Uniform(camera.near),
       uFar: new Uniform(camera.far),
+      uResolution: new Uniform(
+        new Vector2(
+          innerWidth * devicePixelRatio,
+          innerHeight * devicePixelRatio
+        )
+      ),
     }),
     []
   );
@@ -349,6 +356,24 @@ const Sketch = () => {
     }
   );
 
+  const { preset } = useControls(
+    "SMAA",
+    {
+      preset: {
+        value: SMAAPreset.ULTRA,
+        options: {
+          low: SMAAPreset.LOW,
+          medium: SMAAPreset.MEDIUM,
+          high: SMAAPreset.HIGH,
+          ultra: SMAAPreset.ULTRA,
+        },
+      },
+    },
+    {
+      collapsed: true,
+    }
+  );
+
   const { depthTexture } = useDepthTexture(innerWidth, innerHeight);
 
   useEffect(() => {
@@ -440,7 +465,7 @@ const Sketch = () => {
     <>
       <OrbitControls domElement={controlDom} />
       <color attach={"background"} args={["ivory"]} />
-      <ambientLight intensity={int} color={color}  />
+      <ambientLight intensity={int} color={color} />
 
       <Sky
         sunPosition={[0, 0, -1]}
@@ -474,6 +499,7 @@ const Sketch = () => {
           iteration={iteration}
           glowColor={glowColor}
         />
+        <SMAA preset={preset} />
         <GTToneMap {...gtProps} />
       </EffectComposer>
     </>

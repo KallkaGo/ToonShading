@@ -6,6 +6,7 @@ uniform float uIsDay;
 uniform sampler2D uRampMap;
 uniform vec3 uForwardVec;
 uniform vec3 uLeftVec;
+uniform vec2 uResolution;
 
 float RampRow = 5.;
 
@@ -30,12 +31,33 @@ void main() {
 
   float mixValue = mix(valueR, valueL, exposeLeft);
 
-  float sdfRembrandLeft = texture2D(uFaceLightMap, vec2(1. - vUv.x, vUv.y)).r;
-  float sdfRembrandRight = texture2D(uFaceLightMap, vUv).r;
+  vec2 pixelSize = vec2(1. / uResolution.x, 1. / uResolution.y) * 10.;
+
+  vec2 offsets[4] = vec2[](vec2(-pixelSize.x, pixelSize.y), vec2(pixelSize.x, pixelSize.y), vec2(-pixelSize.x, -pixelSize.y), vec2(pixelSize.x, -pixelSize.y));
+
+  // float sdfRembrandLeft = texture2D(uFaceLightMap, vec2(1. - vUv.x, vUv.y)).r;
+  // float sdfRembrandRight = texture2D(uFaceLightMap, vUv).r;
+
+  float sdfRembrandLeft = 0.;
+  float sdfRembrandRight = 0.;
+
+  for(int i = 0; i < 4; i++) {
+    vec2 offsetUv = vUv + offsets[i];
+    float sdfSampleLeft = texture2D(uFaceLightMap, vec2(1. - offsetUv.x, offsetUv.y)).r;
+    float sdfSampleRight = texture2D(uFaceLightMap, offsetUv).r;
+    sdfRembrandLeft += sdfSampleLeft;
+    sdfRembrandRight += sdfSampleRight;
+  }
+
+  sdfRembrandLeft /= 4.;
+  sdfRembrandRight /= 4.;
+
   // 混合左右脸的sdf
   float mixSdf = mix(sdfRembrandLeft, sdfRembrandRight, exposeLeft);
+
   // 当value小于sdf的就是亮面 
   float sdf = step(mixValue, mixSdf);
+
   // 判断光照是否在后面
   sdf = mix(0., sdf, step(0., dot(LpHeadHorizon, forwardVec)));
 
