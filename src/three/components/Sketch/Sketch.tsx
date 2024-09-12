@@ -199,8 +199,8 @@ const Sketch = () => {
     {
       intensity: {
         // 1.6
-        // 2.32
-        value: 3.5,
+        // 3.5
+        value: 2.32,
         min: 0,
         max: 10,
         step: 0.01,
