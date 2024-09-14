@@ -34,37 +34,38 @@ import { Bloom as CustomBloom } from "../effect/Bloom";
 import { useDepthTexture } from "@utils/useDepthTexture";
 import { SMAAPreset } from "postprocessing";
 import useKTX2Loader from "@utils/useKTX2Loader";
+import RES from "./RES";
 
 const Sketch = () => {
-  const ayakaGltf = useKTX2Loader("/ayaka_ktx2_draco.glb", true, false);
-  const faceLightMap = useTexture("/Face/faceLightmap.png");
+  const ayakaGltf = useKTX2Loader(RES.model.ayaka, true, false);
+  const faceLightMap = useTexture(RES.texture.faceLightMap);
   // faceLightMap.wrapS = faceLightMap.wrapT = RepeatWrapping;
   faceLightMap.generateMipmaps = false;
   faceLightMap.flipY = false;
-  const hairLightMap = useTexture("/Hair/light.png");
+  const hairLightMap = useTexture(RES.texture.hairLightMap);
   hairLightMap.flipY = false;
   hairLightMap.wrapS = hairLightMap.wrapT = RepeatWrapping;
-  const bodyLightMap = useTexture("/Body/light.png");
+  const bodyLightMap = useTexture(RES.texture.bodyLightMap);
   bodyLightMap.flipY = false;
   bodyLightMap.wrapS = bodyLightMap.wrapT = RepeatWrapping;
-  const hairRampMap = useTexture("/Hair/ramp.png");
+  const hairRampMap = useTexture(RES.texture.hairRampMap);
   hairRampMap.generateMipmaps = false;
   hairRampMap.colorSpace = LinearSRGBColorSpace;
 
-  const bodyEmissiveMap = useTexture("/Body/emissive.png");
+  const bodyEmissiveMap = useTexture(RES.texture.emissiveMap);
   bodyEmissiveMap.flipY = false;
   bodyEmissiveMap.colorSpace = SRGBColorSpace;
 
-  const bodyRampMap = useTexture("/Body/ramp.png");
+  const bodyRampMap = useTexture(RES.texture.bodyRampMap);
   bodyRampMap.generateMipmaps = false;
 
-  const metalMap = useTexture("matcap/metalMap.png");
+  const metalMap = useTexture(RES.texture.matcapMap);
 
-  const hairNormalMap = useTexture("/Hair/normal.png");
+  const hairNormalMap = useTexture(RES.texture.hairNormalMap);
   hairNormalMap.wrapS = hairNormalMap.wrapT = RepeatWrapping;
   hairNormalMap.flipY = false;
 
-  const bodyNormalMap = useTexture("/Body/normal.png");
+  const bodyNormalMap = useTexture(RES.texture.bodyNormalMap);
   bodyNormalMap.wrapS = bodyNormalMap.wrapT = RepeatWrapping;
   bodyNormalMap.flipY = false;
 

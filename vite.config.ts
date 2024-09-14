@@ -9,7 +9,7 @@ const isCodeSandbox =
 // https://vitejs.dev/config/
 export default defineConfig({
     base: "./",
-    publicDir:'./static',
+    publicDir:'./public',
     assetsInclude: ["**/*.glb", "**/*.hdr", "**/*.mp3", "**/*.ico"],
     resolve: {
         alias: {
