@@ -157,9 +157,9 @@ void main() {
 
   vec3 albedo = diffuse + finalSpec + metallic + glow + rimLight;
 
-  if(baseColor.a < .5) {
-    discard;
-  }
+  // if(baseColor.a < .5) {
+  //   discard;
+  // }
 
   csm_Emissive = vec3(albedo);
   csm_Roughness = 1.;

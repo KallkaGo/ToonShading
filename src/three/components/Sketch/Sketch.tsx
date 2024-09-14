@@ -33,9 +33,10 @@ import GTToneMap from "../effect/GTToneMap";
 import { Bloom as CustomBloom } from "../effect/Bloom";
 import { useDepthTexture } from "@utils/useDepthTexture";
 import { SMAAPreset } from "postprocessing";
+import useKTX2Loader from "@utils/useKTX2Loader";
 
 const Sketch = () => {
-  const ayakaGltf = useGLTF("/ayaka.glb");
+  const ayakaGltf = useKTX2Loader("/ayaka_ktx2_draco.glb", true, false);
   const faceLightMap = useTexture("/Face/faceLightmap.png");
   // faceLightMap.wrapS = faceLightMap.wrapT = RepeatWrapping;
   faceLightMap.generateMipmaps = false;
@@ -444,7 +445,8 @@ const Sketch = () => {
           vertexColors: true,
           silent: true,
           map: child.material.map,
-          transparent: true,
+          transparent: child.material.transparent,
+          alphaTest: child.material.alphaTest,
         });
         child.material = mat;
       }

@@ -26,7 +26,7 @@
     "swiper": "^11.0.7",
     "three": "^0.161.0",
     "three-custom-shader-material": "^5.4.0",
-    "three-stdlib": "^2.29.6",
+    "three-stdlib": "^2.33.0",
     "zustand": "^4.5.1"
   },
   "devDependencies": {

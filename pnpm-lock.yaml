@@ -54,8 +54,8 @@ dependencies:
     specifier: ^5.4.0
     version: 5.4.0(@react-three/fiber@8.16.1)(react@18.2.0)(three@0.161.0)
   three-stdlib:
-    specifier: ^2.29.6
-    version: 2.29.6(three@0.161.0)
+    specifier: ^2.33.0
+    version: 2.33.0(three@0.161.0)
   zustand:
     specifier: ^4.5.1
     version: 4.5.1(@types/react@18.2.56)(react@18.2.0)
@@ -1166,7 +1166,7 @@ packages:
       suspend-react: 0.1.3(react@18.2.0)
       three: 0.161.0
       three-mesh-bvh: 0.7.2(three@0.161.0)
-      three-stdlib: 2.29.6(three@0.161.0)
+      three-stdlib: 2.33.0(three@0.161.0)
       troika-three-text: 0.49.0(three@0.161.0)
       tunnel-rat: 0.1.2(@types/react@18.2.56)(react@18.2.0)
       utility-types: 3.11.0
@@ -1233,7 +1233,7 @@ packages:
       postprocessing: 6.34.3(three@0.161.0)
       react: 18.2.0
       three: 0.161.0
-      three-stdlib: 2.29.6(three@0.161.0)
+      three-stdlib: 2.33.0(three@0.161.0)
     transitivePeerDependencies:
       - '@types/three'
     dev: false
@@ -3112,8 +3112,8 @@ packages:
       three: 0.161.0
     dev: false
 
-  /three-stdlib@2.29.6(three@0.161.0):
-    resolution: {integrity: sha512-nj9bHkzhhwfmqQcM/keC2RDb0bHhbw6bRXTy81ehzi8F1rtp6pJ5eS0/vl1Eg5RMFqXOMyxJ6sDHPoLU+IrVZg==}
+  /three-stdlib@2.33.0(three@0.161.0):
+    resolution: {integrity: sha512-V/uycBuqQOP/3Z+FBtpMdj2Ds5PyfJ3VDfMzktEmG4niOIzv7q1y5uMSbMcng0+057m1l0N147FQxsodQo9zBg==}
     peerDependencies:
       three: '>=0.128.0'
     dependencies:
