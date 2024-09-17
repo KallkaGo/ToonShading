@@ -1,10 +1,4 @@
-import {
-  Environment,
-  OrbitControls,
-  Sky,
-  useGLTF,
-  useTexture,
-} from "@react-three/drei";
+import { OrbitControls, Sky, useTexture } from "@react-three/drei";
 import { useInteractStore, useLoadedStore } from "@utils/Store";
 import { useEffect, useMemo, useRef } from "react";
 import {
@@ -39,7 +33,6 @@ import RES from "./RES";
 const Sketch = () => {
   const ayakaGltf = useKTX2Loader(RES.model.ayaka, true, false);
   const faceLightMap = useTexture(RES.texture.faceLightMap);
-  // faceLightMap.wrapS = faceLightMap.wrapT = RepeatWrapping;
   faceLightMap.generateMipmaps = false;
   faceLightMap.flipY = false;
   const hairLightMap = useTexture(RES.texture.hairLightMap);
@@ -455,15 +448,28 @@ const Sketch = () => {
     backModel.position.set(0, -0.7, 0);
     scene.add(backModel);
     useLoadedStore.setState({ ready: true });
+
+    return () => {
+      scene.remove(backModel);
+      backModel.traverse((child) => {
+        if (child instanceof Mesh) {
+          child.material.dispose();
+        }
+      });
+    };
   }, []);
 
   useFrame((state, delta) => {
+    const { gl } = state;
     delta %= 1;
     const vec = LightPosRef.current;
     groupRef.current?.children[0].getWorldPosition(vec);
     uniforms.uLightPosition.value = vec;
     uniforms.uTime.value += delta;
-    outlineUniforms.uResolution.value.set(innerWidth, innerHeight);
+    outlineUniforms.uResolution.value.set(
+      innerWidth * gl.getPixelRatio(),
+      innerHeight * gl.getPixelRatio()
+    );
   });
 
   return (
