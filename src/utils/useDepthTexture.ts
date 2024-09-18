@@ -22,6 +22,10 @@ const useDepthTexture = (width: number, height: number) => {
     side: DoubleSide,
   }), [])
 
+  /* 
+  without overrideMaterial will not work 
+  need two RenderTarget and swap after render
+  */
   useFrame((state, delta) => {
     const { gl, scene } = state
     const dpr = gl.getPixelRatio()
