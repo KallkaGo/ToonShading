@@ -1,3 +1,5 @@
+// https://zhuanlan.zhihu.com/p/125744132
+
 import { Pass, ShaderPass } from "postprocessing";
 import { HalfFloatType, ShaderMaterial, Texture, Uniform, UnsignedByteType, Vector2, WebGLRenderTarget, WebGLRenderer } from "three";
 import downVertex from "../shader/downVertex.glsl";
@@ -87,7 +89,7 @@ class DualBlurPass extends Pass {
         1 / width,
         1 / height
       );
-      this.upSampleMaterial.uniforms["uSize"].value.set(1 / width, 1 / height);
+
       width = Math.max(width / 2, 1);
       height = Math.max(height / 2, 1);
       if (i === 0) {
@@ -97,7 +99,10 @@ class DualBlurPass extends Pass {
       this.finRT.texture = downRt[i].texture;
     }
     // up sample
-    for (let i = count - 1; i >= 0; i--) {
+    upRt[count - 1].texture = downRt[count - 1].texture;
+    this.upSampleMaterial.uniforms["uSize"].value.set(1 / upRt[count - 1].width, 1 / upRt[count - 1].height);
+    for (let i = count - 2; i >= 0; i--) {
+      this.upSampleMaterial.uniforms["uSize"].value.set(1 / upRt[i].width, 1 / upRt[i].height);
       this.upSamplePass.render(renderer, this.finRT, upRt[i]);
       this.finRT.texture = upRt[i].texture;
     }
