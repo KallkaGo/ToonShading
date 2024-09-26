@@ -33,7 +33,11 @@ void main() {
 
   vec2 pixelSize = vec2(1. / uResolution.x, 1. / uResolution.y) * 10.;
 
-  vec2 offsets[4] = vec2[](vec2(-pixelSize.x, pixelSize.y), vec2(pixelSize.x, pixelSize.y), vec2(-pixelSize.x, -pixelSize.y), vec2(pixelSize.x, -pixelSize.y));
+  vec2 offsets[4];
+  offsets[0] = vec2(-pixelSize.x, pixelSize.y);
+  offsets[1] = vec2(pixelSize.x, pixelSize.y);
+  offsets[2] = vec2(-pixelSize.x, -pixelSize.y);
+  offsets[3] = vec2(pixelSize.x, -pixelSize.y);
 
   // float sdfRembrandLeft = texture2D(uFaceLightMap, vec2(1. - vUv.x, vUv.y)).r;
   // float sdfRembrandRight = texture2D(uFaceLightMap, vUv).r;
