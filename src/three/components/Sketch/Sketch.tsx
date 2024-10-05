@@ -509,7 +509,6 @@ const Sketch = () => {
           iteration={iteration}
           glowColor={glowColor}
         />
-        <SMAA preset={preset} />
         <GTToneMap {...gtProps} />
       </EffectComposer>
     </>
