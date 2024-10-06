@@ -125,7 +125,7 @@ const Sketch = () => {
     "outLine",
     {
       lineWidth: {
-        value: 0.3,
+        value: 0.4,
         min: 0,
         max: 1,
         step: 0.01,
@@ -353,24 +353,6 @@ const Sketch = () => {
     }
   );
 
-  const { preset } = useControls(
-    "SMAA",
-    {
-      preset: {
-        value: SMAAPreset.ULTRA,
-        options: {
-          low: SMAAPreset.LOW,
-          medium: SMAAPreset.MEDIUM,
-          high: SMAAPreset.HIGH,
-          ultra: SMAAPreset.ULTRA,
-        },
-      },
-    },
-    {
-      collapsed: true,
-    }
-  );
-
   const { depthTexture } = useDepthTexture(innerWidth, innerHeight);
 
   useEffect(() => {
@@ -445,7 +427,7 @@ const Sketch = () => {
         child.material = mat;
       }
     });
-    backModel.position.set(0, -0.7, 0);
+    backModel.position.copy(ayakaRef.current.position);
     scene.add(backModel);
     useLoadedStore.setState({ ready: true });
 
@@ -453,6 +435,7 @@ const Sketch = () => {
       scene.remove(backModel);
       backModel.traverse((child) => {
         if (child instanceof Mesh) {
+          child.geometry.dispose();
           child.material.dispose();
         }
       });
@@ -463,18 +446,16 @@ const Sketch = () => {
     const { gl } = state;
     delta %= 1;
     const vec = LightPosRef.current;
+    const dpr = gl.getPixelRatio();
     groupRef.current?.children[0].getWorldPosition(vec);
     uniforms.uLightPosition.value = vec;
     uniforms.uTime.value += delta;
-    outlineUniforms.uResolution.value.set(
-      innerWidth * gl.getPixelRatio(),
-      innerHeight * gl.getPixelRatio()
-    );
+    outlineUniforms.uResolution.value.set(innerWidth * dpr, innerHeight * dpr);
   });
 
   return (
     <>
-      <OrbitControls domElement={controlDom} />
+      <OrbitControls domElement={controlDom} minDistance={0.5} />
       <color attach={"background"} args={["black"]} />
       <ambientLight intensity={int} color={color} />
       <Sky
