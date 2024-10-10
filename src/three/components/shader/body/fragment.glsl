@@ -58,7 +58,7 @@ void main() {
 
   float NDotL = dot(worldNormal, dirL); //lambert
 
-  NDotL = max(NDotL, 0.);
+  float lambert = max(NDotL, 0.);
 
   float NDotH = dot(worldNormal, hDirWS); //Blinn-Phong
 
@@ -67,7 +67,7 @@ void main() {
   /* lightMap */
   vec4 lightMapTex = texture2D(uLightMap, vUv);
 
-  float halfLambert = pow(NDotL * .5 + .5, 2.);
+  float halfLambert = pow(lambert * .5 + .5, 2.);
   float lamberStep = smoothstep(.42, .45, halfLambert);
 
   /* 枚举样条阈值 */

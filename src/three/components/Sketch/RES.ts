@@ -1,4 +1,4 @@
-import ayaka from '@models/ayaka_ktx2_draco.glb'
+import ayaka from '@models/ayakaktx2opt.glb'
 import faceLightMap from '@textures/face/faceLightmap.png'
 import hairLightMap from '@textures/hair/light.png'
 import bodyLightMap from '@textures/body/light.png'

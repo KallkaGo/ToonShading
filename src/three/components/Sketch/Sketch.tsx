@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef } from "react";
 import {
   BackSide,
   Color,
+  FrontSide,
   Group,
   LinearSRGBColorSpace,
   Mesh,
@@ -31,7 +32,7 @@ import useKTX2Loader from "@utils/useKTX2Loader";
 import RES from "./RES";
 
 const Sketch = () => {
-  const ayakaGltf = useKTX2Loader(RES.model.ayaka, true, false);
+  const ayakaGltf = useKTX2Loader(RES.model.ayaka, false, false);
   const faceLightMap = useTexture(RES.texture.faceLightMap);
   faceLightMap.generateMipmaps = false;
   faceLightMap.flipY = false;
@@ -388,7 +389,7 @@ const Sketch = () => {
             map: mat.map,
             silent: true,
             transparent: mat.transparent,
-            side: mat.side,
+            side: FrontSide,
             alphaTest: mat.alphaTest,
           });
           child.material = newMat;
