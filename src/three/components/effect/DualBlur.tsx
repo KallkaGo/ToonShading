@@ -7,6 +7,7 @@ import { DualBlurPass } from "./pass/DualBlurPass";
 interface IProps {
   loopCount: number;
   blurRange?: number;
+  additive?: boolean;
 }
 
 const fragmentShader = /* glsl */ `
@@ -24,6 +25,7 @@ class DualBlurEffect extends Effect {
     props: IProps = {
       loopCount: 4,
       blurRange: 0,
+      additive: false,
     }
   ) {
     super("DualBlurEffect", fragmentShader, {

@@ -54,8 +54,6 @@ class BloomEffect extends Effect {
         ["glowColor", new Uniform(new Color(glowColor))],
       ]),
     });
-
-    console.log("intensity", intensity);
     tempRt?.dispose();
     tempRt = new WebGLRenderTarget(innerWidth, innerHeight, {
       samples: 4,
@@ -100,6 +98,7 @@ class BloomEffect extends Effect {
     this.dulaBlurPass = new DualBlurPass({
       loopCount: iteration,
       blurRange: radius,
+      additive: true,
     });
   }
   update(

@@ -145,7 +145,9 @@ const Sketch = () => {
     {
       color: {
         // #e5cebe
-        value: "#ffffff",
+        // #ffffff
+        // #ffe4e4
+        value: "#fff3e3",
       },
       int: {
         // 。85
@@ -204,7 +206,8 @@ const Sketch = () => {
       radius: {
         // 0
         // 2.74
-        value: 4,
+        // 4
+        value: 1.56,
         min: -10,
         max: 10,
         step: 0.01,
@@ -222,7 +225,8 @@ const Sketch = () => {
         step: 0.01,
       },
       iteration: {
-        value: 3,
+        // 3
+        value: 7,
         min: 1,
         max: 10,
         step: 1,
