@@ -114,7 +114,7 @@ class DualBlurPass extends Pass {
     this.upSampleMaterial.uniforms["uSize"].value.set(1 / upRt[count - 1].width, 1 / upRt[count - 1].height);
     for (let i = count - 2; i >= 0; i--) {
       this.upSampleMaterial.uniforms["uSize"].value.set(1 / upRt[i].width, 1 / upRt[i].height);
-      this.upSampleMaterial.uniforms.uCurDownSample.value = downRt[i].texture;
+      this.additive && (this.upSampleMaterial.uniforms.uCurDownSample.value = downRt[i].texture);
       this.upSamplePass.render(renderer, this.finRT, upRt[i]);
       this.finRT.texture = upRt[i].texture;
     }
