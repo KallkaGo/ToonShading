@@ -1,7 +1,7 @@
 # ToonShading
 Unity Toon Shading Webgl replica
 
-portal: https://toon-shading.vercel.app/   (To open the debug panel, please fill in #debug in the url)
+portal: https://toon-shading.vercel.app/   (To open the debug panel, please fill in #debug in the url(https://toon-shading.vercel.app/#debug))
 
 Game：
 ![game](https://github.com/user-attachments/assets/1f9223f2-27f2-4ef4-bf02-90125ea6f1bb)
