@@ -17,7 +17,7 @@ float getLumaWeight(float luma) {
 }
 
 void main() {
-
+  // https://www.iryoku.com/next-generation-post-processing-in-call-of-duty-advanced-warfare/ PPT page 164
   if(uFirst) {
     float lumac, lumatl, lumatr, lumabl, lumabr;
     vec3 c = applyThreshold(texture2D(inputBuffer, vUv[0]).rgb, lumac);
