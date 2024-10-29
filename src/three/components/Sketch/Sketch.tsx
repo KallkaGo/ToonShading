@@ -69,6 +69,7 @@ const Sketch = () => {
   const controlDom = useInteractStore((state) => state.controlDom);
   const scene = useThree((state) => state.scene);
   const camera = useThree((state) => state.camera);
+  const gl = useThree((state) => state.gl);
 
   const uniforms = useMemo(
     () => ({
@@ -126,7 +127,7 @@ const Sketch = () => {
     "outLine",
     {
       lineWidth: {
-        value: 0.4,
+        value: 0.3,
         min: 0,
         max: 1,
         step: 0.01,
@@ -198,7 +199,8 @@ const Sketch = () => {
       intensity: {
         // 1.6
         // 3.5
-        value: 2.32,
+        // 2.32
+        value: 2.26,
         min: 0,
         max: 10,
         step: 0.01,
@@ -207,7 +209,8 @@ const Sketch = () => {
         // 0
         // 2.74
         // 4
-        value: 1.56,
+        // 1.56
+        value: 0,
         min: -10,
         max: 10,
         step: 0.01,
@@ -434,6 +437,7 @@ const Sketch = () => {
     });
     backModel.position.copy(ayakaRef.current.position);
     scene.add(backModel);
+    gl.setClearColor(0x000000, 0);
     useLoadedStore.setState({ ready: true });
 
     return () => {
@@ -461,16 +465,17 @@ const Sketch = () => {
   return (
     <>
       <OrbitControls domElement={controlDom} minDistance={0.5} />
-      <color attach={"background"} args={["black"]} />
+      
+
       <ambientLight intensity={int} color={color} />
-      <Sky
+      {/* <Sky
         sunPosition={[0, 0, -1]}
         distance={50000}
         turbidity={8}
         rayleigh={6}
         mieCoefficient={0.005}
         mieDirectionalG={0.8}
-      />
+      /> */}
       <primitive
         object={ayakaGltf.scene}
         ref={ayakaRef}

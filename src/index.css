@@ -26,6 +26,8 @@ body,
     left: 0;
     width: 100vw;
     height: 100vh;
+    background-image: url(../static/textures/bg/bg.jpg);
+    background-size:100% 100%;
 }
 
 .abs {

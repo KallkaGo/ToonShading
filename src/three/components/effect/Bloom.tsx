@@ -28,7 +28,11 @@ uniform vec3 glowColor;
 void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor)
 { 
     vec4 color = texture2D(blurMap, uv);
-    outputColor =  inputColor+color * intensity *vec4(glowColor,1.0);
+    float lum = 0.21 * color.r + 0.71 * color.g + 0.07 * color.b;
+    // outputColor =  inputColor+color * intensity *vec4(glowColor,1.0);
+    float alpha = max(inputColor.a, lum);
+    alpha = mix(alpha,.1,.04);
+    outputColor = vec4(inputColor.rgb + color.rgb*intensity*glowColor, alpha);
 }
 `;
 
