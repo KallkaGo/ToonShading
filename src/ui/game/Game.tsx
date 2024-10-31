@@ -28,7 +28,6 @@ const Game = () => {
   }, []);
 
   const handlePointerEvent = (e: PointerEvent, flag: boolean) => {
-    console.log(e.type, flag);
     useInteractStore.setState({ touch: flag });
   };
 

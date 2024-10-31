@@ -23,16 +23,15 @@ import outlineVertexShader from "../shader/outline/vertex.glsl";
 import outlineFragmentShader from "../shader/outline/fragment.glsl";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useControls } from "leva";
-import { EffectComposer, SMAA } from "@react-three/postprocessing";
+import { EffectComposer} from "@react-three/postprocessing";
 import GTToneMap from "../effect/GTToneMap";
 import { Bloom as CustomBloom } from "../effect/Bloom";
 import { useDepthTexture } from "@utils/useDepthTexture";
-import { SMAAPreset } from "postprocessing";
 import useKTX2Loader from "@utils/useKTX2Loader";
 import RES from "./RES";
 
 const Sketch = () => {
-  const ayakaGltf = useKTX2Loader(RES.model.ayaka, false, false);
+  const ayakaGltf = useKTX2Loader(RES.model.ayaka);
   const faceLightMap = useTexture(RES.texture.faceLightMap);
   faceLightMap.generateMipmaps = false;
   faceLightMap.flipY = false;
@@ -63,7 +62,7 @@ const Sketch = () => {
   bodyNormalMap.wrapS = bodyNormalMap.wrapT = RepeatWrapping;
   bodyNormalMap.flipY = false;
 
-  const ayakaRef = useRef<any>(null);
+  const ayakaRef = useRef<Group>(null);
   const groupRef = useRef<Group>(null);
   const LightPosRef = useRef<Vector3>(new Vector3());
   const controlDom = useInteractStore((state) => state.controlDom);
@@ -435,7 +434,7 @@ const Sketch = () => {
         child.material = mat;
       }
     });
-    backModel.position.copy(ayakaRef.current.position);
+    backModel.position.copy(ayakaRef.current!.position);
     scene.add(backModel);
     gl.setClearColor(0x000000, 0);
     useLoadedStore.setState({ ready: true });
@@ -491,7 +490,7 @@ const Sketch = () => {
           <meshBasicMaterial color={"hotpink"}></meshBasicMaterial>
         </mesh>
       </group>
-      <EffectComposer disableNormalPass enabled={true}>
+      <EffectComposer disableNormalPass >
         <CustomBloom
           intensity={intensity}
           luminanceThreshold={luminanceThreshold}
