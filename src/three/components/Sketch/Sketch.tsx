@@ -23,7 +23,7 @@ import outlineVertexShader from "../shader/outline/vertex.glsl";
 import outlineFragmentShader from "../shader/outline/fragment.glsl";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useControls } from "leva";
-import { EffectComposer} from "@react-three/postprocessing";
+import { EffectComposer } from "@react-three/postprocessing";
 import GTToneMap from "../effect/GTToneMap";
 import { Bloom as CustomBloom } from "../effect/Bloom";
 import { useDepthTexture } from "@utils/useDepthTexture";
@@ -434,6 +434,7 @@ const Sketch = () => {
         child.material = mat;
       }
     });
+    backModel.scale.setScalar(1.0001);
     backModel.position.copy(ayakaRef.current!.position);
     scene.add(backModel);
     gl.setClearColor(0x000000, 0);
@@ -463,9 +464,11 @@ const Sketch = () => {
 
   return (
     <>
-      <OrbitControls domElement={controlDom} minDistance={0.5} />
-      
-
+      <OrbitControls
+        domElement={controlDom}
+        minDistance={0.5}
+        maxDistance={10}
+      />
       <ambientLight intensity={int} color={color} />
       {/* <Sky
         sunPosition={[0, 0, -1]}
@@ -490,7 +493,7 @@ const Sketch = () => {
           <meshBasicMaterial color={"hotpink"}></meshBasicMaterial>
         </mesh>
       </group>
-      <EffectComposer disableNormalPass >
+      <EffectComposer disableNormalPass>
         <CustomBloom
           intensity={intensity}
           luminanceThreshold={luminanceThreshold}

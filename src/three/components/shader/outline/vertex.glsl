@@ -21,7 +21,7 @@ void main() {
   /* in Opengl clip space w = -zView  */
   float ctrlCSw = clamp(clipPosition.w, .5, 3.);
   clipPosition.xy += 0.01 * uOutLineWidth * ndcNormal.xy * color.a * ctrlCSw;
-  clipPosition.z += 0.0001 * ndcNormal.z;
+  // clipPosition.z += 0.0001 * ndcNormal.z;
   uOpacity = step(.001, uOutLineWidth);
   csm_PositionRaw = clipPosition;
   vNor = aveNormal;

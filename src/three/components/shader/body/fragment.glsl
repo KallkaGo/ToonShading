@@ -153,7 +153,7 @@ void main() {
   vec4 emissiveTex = texture2D(uEmissiveMap, vUv);
   emissiveTex.a = smoothstep(0., 1., emissiveTex.a);
 
-  vec3 glow = mix(vec3(0.), emissiveTex.rgb * abs(sin(uTime)) * .15, emissiveTex.a);
+  vec3 glow = mix(vec3(0.), emissiveTex.rgb * abs(sin(uTime * .8)) * .2, emissiveTex.a);
 
   vec3 albedo = diffuse + finalSpec + metallic + glow + rimLight;
 
