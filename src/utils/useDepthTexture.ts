@@ -30,6 +30,8 @@ const useDepthTexture = (width: number, height: number) => {
   useFrame((state, delta) => {
     const { gl, scene } = state
     const dpr = gl.getPixelRatio()
+    rt1.depthTexture.image.width = innerWidth * dpr
+    rt1.depthTexture.image.height = innerHeight * dpr
     rt1.setSize(innerWidth * dpr, innerHeight * dpr)
     scene.overrideMaterial = material
     scene.background = bgColor

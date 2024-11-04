@@ -40,8 +40,6 @@ class DualBlurPass extends Pass {
 
     this.additive = additive
 
-    console.log('this.additive', this.additive);
-
     this.downSampleMaterial = new ShaderMaterial({
       vertexShader: downVertex,
       fragmentShader: downFragment,

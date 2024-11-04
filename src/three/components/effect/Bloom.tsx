@@ -19,6 +19,7 @@ interface IProps {
   intensity?: number;
   iteration?: number;
   glowColor?: string;
+  transparent?: boolean;
 }
 
 const fragmentShader = /* glsl */ `
@@ -28,10 +29,15 @@ uniform vec3 glowColor;
 void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor)
 { 
     vec4 color = texture2D(blurMap, uv);
+
+    float alpha = 1.;
+
+    #ifdef TRANSPARENT
     float lum = 0.21 * color.r + 0.71 * color.g + 0.07 * color.b;
     // outputColor =  inputColor+color * intensity *vec4(glowColor,1.0);
-    float alpha = max(inputColor.a, lum);
+    alpha = max(inputColor.a, lum);
     alpha = mix(alpha,.1,.03);
+    #endif
     outputColor = vec4(inputColor.rgb + color.rgb*intensity*glowColor, alpha);
 }
 `;
@@ -50,8 +56,10 @@ class BloomEffect extends Effect {
     luminanceSmoothing = 0.1,
     glowColor = "white",
     iteration = 4,
+    transparent = false,
   }: IProps) {
     super("Bloom", fragmentShader, {
+      defines:transparent ? new Map([]) : new Map([["TRANSPARENT", ""]]),
       uniforms: new Map<string, Uniform>([
         ["blurMap", new Uniform(null)],
         ["intensity", new Uniform(intensity)],

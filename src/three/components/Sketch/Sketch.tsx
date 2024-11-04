@@ -105,6 +105,12 @@ const Sketch = () => {
     []
   );
 
+  /* Background */
+  const { transparent } = useControls("Background", {
+    transparent: false,
+  });
+
+  /* DayOrNight */
   useControls(
     "DayOrNight",
     {
@@ -123,8 +129,9 @@ const Sketch = () => {
     }
   );
 
+  /* Outline */
   useControls(
-    "outLine",
+    "OutLine",
     {
       lineWidth: {
         value: 0.3,
@@ -141,6 +148,7 @@ const Sketch = () => {
     }
   );
 
+  /* AmbientLight */
   const { color, int } = useControls(
     "ambientLight",
     {
@@ -164,6 +172,7 @@ const Sketch = () => {
     }
   );
 
+  /* LightPosition */
   const { visible, position } = useControls(
     "Light",
     {
@@ -187,6 +196,7 @@ const Sketch = () => {
     }
   );
 
+  /* Bloom */
   const {
     intensity,
     radius,
@@ -246,6 +256,7 @@ const Sketch = () => {
     }
   );
 
+  /* Shadow */
   useControls(
     "Shadow",
     {
@@ -261,6 +272,7 @@ const Sketch = () => {
     }
   );
 
+  /* Metal */
   useControls(
     "Metal",
     {
@@ -288,6 +300,7 @@ const Sketch = () => {
     }
   );
 
+  /* RimLight */
   useControls(
     "RimLight",
     {
@@ -302,8 +315,7 @@ const Sketch = () => {
         },
       },
       intensity: {
-        // 0.5
-        value: 0.9,
+        value: 0.5,
         min: 0,
         max: 10,
         step: 0.01,
@@ -317,6 +329,7 @@ const Sketch = () => {
     }
   );
 
+  /* GT ToneMap */
   const gtProps = useControls(
     "ToneMapGT",
     {
@@ -474,14 +487,16 @@ const Sketch = () => {
         maxDistance={10}
       />
       <ambientLight intensity={int} color={color} />
-      {/* <Sky
-        sunPosition={[0, 0, -1]}
-        distance={50000}
-        turbidity={8}
-        rayleigh={6}
-        mieCoefficient={0.005}
-        mieDirectionalG={0.8}
-      /> */}
+      {transparent && (
+        <Sky
+          sunPosition={[0, 0, -1]}
+          distance={50000}
+          turbidity={8}
+          rayleigh={6}
+          mieCoefficient={0.005}
+          mieDirectionalG={0.8}
+        />
+      )}
       <primitive
         object={ayakaGltf.scene}
         ref={ayakaRef}
@@ -505,8 +520,9 @@ const Sketch = () => {
           radius={radius}
           iteration={iteration}
           glowColor={glowColor}
+          transparent={transparent}
         />
-        <SMAA preset={SMAAPreset.ULTRA} />
+        <SMAA preset={SMAAPreset.MEDIUM} />
         <GTToneMap {...gtProps} />
       </EffectComposer>
     </>
