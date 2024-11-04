@@ -152,7 +152,8 @@ const Sketch = () => {
       },
       int: {
         // 。85
-        value: 1.1,
+        // 1.02
+        value: 1.02,
         min: 0,
         max: 2,
         step: 0.01,
@@ -237,7 +238,7 @@ const Sketch = () => {
       glowColor: {
         // #d8b2b2
         // #6b3a3a
-        value: "#6b3a3a",
+        value: "#6c5252",
       },
     },
     {
