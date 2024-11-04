@@ -1,7 +1,7 @@
 import { useFBO } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { useMemo } from "react"
-import { DepthFormat, DepthTexture, DoubleSide, MeshDepthMaterial, NearestFilter, RGBAFormat, ShaderMaterial, Texture, Uniform, UnsignedByteType, UnsignedShortType } from "three"
+import { Color, DepthFormat, DepthTexture, DoubleSide, MeshDepthMaterial, NearestFilter, RGBAFormat, ShaderMaterial, Texture, Uniform, UnsignedByteType, UnsignedShortType } from "three"
 
 const useDepthTexture = (width: number, height: number) => {
 
@@ -21,6 +21,7 @@ const useDepthTexture = (width: number, height: number) => {
   const material = useMemo(() => new MeshDepthMaterial({
     side: DoubleSide,
   }), [])
+  const bgColor = new Color(0x000000)
 
   /* 
   without overrideMaterial will not work 
@@ -31,10 +32,12 @@ const useDepthTexture = (width: number, height: number) => {
     const dpr = gl.getPixelRatio()
     rt1.setSize(innerWidth * dpr, innerHeight * dpr)
     scene.overrideMaterial = material
+    scene.background = bgColor
     gl.setRenderTarget(rt1)
     gl.render(scene, camera)
     gl.setRenderTarget(null)
     scene.overrideMaterial = null
+    scene.background = null
   })
 
   return { depthTexture: rt1.depthTexture as Texture }

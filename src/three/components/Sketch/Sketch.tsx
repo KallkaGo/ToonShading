@@ -23,12 +23,13 @@ import outlineVertexShader from "../shader/outline/vertex.glsl";
 import outlineFragmentShader from "../shader/outline/fragment.glsl";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useControls } from "leva";
-import { EffectComposer } from "@react-three/postprocessing";
+import { EffectComposer, SMAA } from "@react-three/postprocessing";
 import GTToneMap from "../effect/GTToneMap";
 import { Bloom as CustomBloom } from "../effect/Bloom";
 import { useDepthTexture } from "@utils/useDepthTexture";
 import useKTX2Loader from "@utils/useKTX2Loader";
 import RES from "./RES";
+import { SMAAPreset } from "postprocessing";
 
 const Sketch = () => {
   const ayakaGltf = useKTX2Loader(RES.model.ayaka);
@@ -235,6 +236,7 @@ const Sketch = () => {
       },
       glowColor: {
         // #d8b2b2
+        // #6b3a3a
         value: "#6b3a3a",
       },
     },
@@ -342,7 +344,8 @@ const Sketch = () => {
         step: 0.01,
       },
       BlackTightnessC: {
-        value: 1.69,
+        // 1.69
+        value: 1.3,
         min: 1,
         max: 3,
         step: 0.01,
@@ -502,6 +505,7 @@ const Sketch = () => {
           iteration={iteration}
           glowColor={glowColor}
         />
+        <SMAA preset={SMAAPreset.ULTRA} />
         <GTToneMap {...gtProps} />
       </EffectComposer>
     </>
