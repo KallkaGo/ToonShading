@@ -8,6 +8,7 @@ import {
   Group,
   LinearSRGBColorSpace,
   Mesh,
+  MeshBasicMaterial,
   MeshStandardMaterial,
   RepeatWrapping,
   SRGBColorSpace,
@@ -31,6 +32,7 @@ import useKTX2Loader from "@utils/useKTX2Loader";
 import RES from "./RES";
 import { SMAAPreset } from "postprocessing";
 
+
 const Sketch = () => {
   const ayakaGltf = useKTX2Loader(RES.model.ayaka);
   const faceLightMap = useTexture(RES.texture.faceLightMap);
@@ -44,13 +46,14 @@ const Sketch = () => {
   bodyLightMap.wrapS = bodyLightMap.wrapT = RepeatWrapping;
   const hairRampMap = useTexture(RES.texture.hairRampMap);
   hairRampMap.generateMipmaps = false;
-  hairRampMap.colorSpace = LinearSRGBColorSpace;
+  hairRampMap.colorSpace = SRGBColorSpace;
 
   const bodyEmissiveMap = useTexture(RES.texture.emissiveMap);
   bodyEmissiveMap.flipY = false;
   bodyEmissiveMap.colorSpace = SRGBColorSpace;
 
   const bodyRampMap = useTexture(RES.texture.bodyRampMap);
+  bodyRampMap.colorSpace = SRGBColorSpace;
   bodyRampMap.generateMipmaps = false;
 
   const metalMap = useTexture(RES.texture.matcapMap);
@@ -437,7 +440,7 @@ const Sketch = () => {
     backModel.traverse((child) => {
       if (child instanceof Mesh) {
         const mat = new CustomShaderMaterial({
-          baseMaterial: MeshStandardMaterial,
+          baseMaterial: MeshBasicMaterial,
           uniforms: outlineUniforms,
           vertexShader: outlineVertexShader,
           fragmentShader: outlineFragmentShader,
