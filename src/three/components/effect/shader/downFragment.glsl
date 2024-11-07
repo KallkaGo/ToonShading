@@ -33,6 +33,8 @@ void main() {
     float wbr = getLumaWeight(lumabr);
 
     vec3 colorSum = tl * wtl + tr * wtr + bl * wbl + br * wbr + c * wc * 4.;
+
+    // dualBlur downSample weight combine with 1/(1 + Luma)
     float weightSum = wtl + wtr + wbl + wbr + wc * 4.;
 
     vec3 color = colorSum / weightSum;

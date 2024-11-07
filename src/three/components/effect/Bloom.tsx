@@ -34,7 +34,6 @@ void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor)
 
     #ifdef TRANSPARENT
     float lum = 0.21 * color.r + 0.71 * color.g + 0.07 * color.b;
-    // outputColor =  inputColor+color * intensity *vec4(glowColor,1.0);
     alpha = max(inputColor.a, lum);
     alpha = mix(alpha,.1,.03);
     #endif
