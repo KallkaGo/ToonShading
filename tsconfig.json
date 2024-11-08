@@ -47,7 +47,7 @@
   },
   "include": [
     "src"
-, "src/ui/detail/DetailPage/DetailPage"  ],
+  ],
   "references": [
     {
       "path": "./tsconfig.node.json"
