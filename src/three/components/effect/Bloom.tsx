@@ -58,7 +58,7 @@ class BloomEffect extends Effect {
     transparent = false,
   }: IProps) {
     super("Bloom", fragmentShader, {
-      defines:transparent ? new Map([]) : new Map([["TRANSPARENT", ""]]),
+      defines:!transparent ? new Map([]) : new Map([["TRANSPARENT", ""]]),
       uniforms: new Map<string, Uniform>([
         ["blurMap", new Uniform(null)],
         ["intensity", new Uniform(intensity)],

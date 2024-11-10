@@ -110,7 +110,7 @@ const Sketch = () => {
 
   /* Background */
   const { transparent } = useControls("Background", {
-    transparent: false,
+    transparent: true,
   });
 
   /* DayOrNight */
@@ -490,7 +490,7 @@ const Sketch = () => {
         maxDistance={10}
       />
       <ambientLight intensity={int} color={color} />
-      {transparent && (
+      {!transparent && (
         <Sky
           sunPosition={[0, 0, -1]}
           distance={50000}
