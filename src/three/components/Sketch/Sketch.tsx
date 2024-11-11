@@ -448,7 +448,7 @@ const Sketch = () => {
           vertexColors: true,
           silent: true,
           map: child.material.map,
-          transparent: child.material.transparent,
+          transparent: false,
           alphaTest: child.material.alphaTest,
         });
         child.material = mat;
