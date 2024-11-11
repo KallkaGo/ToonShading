@@ -66,9 +66,7 @@ class BloomEffect extends Effect {
       ]),
     });
     tempRt?.dispose();
-    tempRt = new WebGLRenderTarget(innerWidth, innerHeight, {
-      samples: 4,
-    });
+    tempRt = new WebGLRenderTarget(innerWidth, innerHeight);
 
     this.luminanceMaterial = new ShaderMaterial({
       vertexShader: /* glsl */ `

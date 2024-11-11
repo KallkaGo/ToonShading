@@ -240,6 +240,7 @@ const Sketch = () => {
         min: 0,
         max: 1,
         step: 0.01,
+        disabled:true
       },
       iteration: {
         // 3
