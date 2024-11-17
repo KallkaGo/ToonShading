@@ -25,6 +25,20 @@ Demo:
 with HTML Background:
 ![image](https://github.com/user-attachments/assets/08cb091f-ed2a-45a8-8108-6cdc5125fe0b)
 
+------
 
+### Credit
 
+- [SIGGRAPH 2014 Advances in Real-Time Rendering in Games](https://www.iryoku.com/next-generation-post-processing-in-call-of-duty-advanced-warfare/)
+- [给你柠檬椰果养乐多你会跟我玩吗](https://space.bilibili.com/32704665)
+- [从零开始的卡通渲染](https://www.zhihu.com/column/c_1215952152252121088)
 
+### Artwork Copyright
+
+- [miHoYo](https://www.mihoyo.com/)
+
+### License
+
+------
+
+MIT License
