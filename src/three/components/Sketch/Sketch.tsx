@@ -32,7 +32,6 @@ import useKTX2Loader from "@utils/useKTX2Loader";
 import RES from "./RES";
 import { SMAAPreset } from "postprocessing";
 
-
 const Sketch = () => {
   const ayakaGltf = useKTX2Loader(RES.model.ayaka);
   const faceLightMap = useTexture(RES.texture.faceLightMap);
@@ -240,7 +239,7 @@ const Sketch = () => {
         min: 0,
         max: 1,
         step: 0.01,
-        disabled:true
+        disabled: true,
       },
       iteration: {
         // 3
@@ -526,8 +525,8 @@ const Sketch = () => {
           glowColor={glowColor}
           transparent={transparent}
         />
-        <SMAA preset={SMAAPreset.MEDIUM} />
         <GTToneMap {...gtProps} />
+        {/* <SMAA preset={SMAAPreset.MEDIUM} /> */}
       </EffectComposer>
     </>
   );
