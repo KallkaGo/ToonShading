@@ -199,14 +199,7 @@ const Sketch = () => {
   );
 
   /* Bloom */
-  const {
-    intensity,
-    radius,
-    luminanceThreshold,
-    iteration,
-    luminanceSmoothing,
-    glowColor,
-  } = useControls(
+  const bloomProps = useControls(
     "Bloom",
     {
       intensity: {
@@ -516,17 +509,8 @@ const Sketch = () => {
         </mesh>
       </group>
       <EffectComposer disableNormalPass>
-        <CustomBloom
-          intensity={intensity}
-          luminanceThreshold={luminanceThreshold}
-          luminanceSmoothing={luminanceSmoothing}
-          radius={radius}
-          iteration={iteration}
-          glowColor={glowColor}
-          transparent={transparent}
-        />
+        <CustomBloom {...bloomProps} transparent={transparent} />
         <GTToneMap {...gtProps} />
-        {/* <SMAA preset={SMAAPreset.MEDIUM} /> */}
       </EffectComposer>
     </>
   );
