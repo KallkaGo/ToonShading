@@ -28,10 +28,7 @@ body,
   height: 100vh;
 }
 
-#root {
-  background-image: url("../static/textures//bg/bg.jpg");
-  background-size: 100% 100%;
-}
+
 
 .abs {
   position: absolute;

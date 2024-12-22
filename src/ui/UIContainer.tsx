@@ -10,6 +10,8 @@ import { PageActionType, initialState, reducer } from "./Reducer";
 import Game from "./game/Game";
 import Load from "./load/Load";
 import { useInteractStore } from "@utils/Store";
+import bgSrc from '@textures/bg/bg.jpg';
+import { usePreloadImages } from "@utils/usePreload";
 export default function UIContainer() {
   const { isMute, audioAllowed, browserHidden } = useInteractStore((state) => ({
     isMute: state.isMute,
@@ -19,6 +21,23 @@ export default function UIContainer() {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const container = useRef<Div>(null);
+
+  useEffect(() => {
+     async function preload() {
+
+       await usePreloadImages([bgSrc]);
+
+       const root = container.current?.parentElement!;
+
+       root.style.backgroundImage = `url(${bgSrc})`;
+
+       root.style.backgroundSize = "100% 100%";
+
+     }
+
+     preload();
+
+  }, []);
 
   useEffect(() => {
     if (audioAllowed) {

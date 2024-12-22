@@ -1,6 +1,5 @@
-import { useEffect } from "react";
-const usePreloadImages = (images: string[], onImagesLoaded?: (loadedImages: string[]) => void) => {
-  useEffect(() => {
+const usePreloadImages = (images: string[],onImagesLoaded?: (loadedImages: string[]) => void): Promise<string[]> => {
+  return new Promise((resolve) => {
     const loaded: string[] = [];
     for (const imageUrl of images) {
       const image = new Image();
@@ -9,12 +8,16 @@ const usePreloadImages = (images: string[], onImagesLoaded?: (loadedImages: stri
         loaded.push(imageUrl);
         if (loaded.length === images.length) {
           onImagesLoaded && onImagesLoaded(loaded);
+          resolve(loaded);
         }
       };
     }
-  }, []);
+  })
 }
 
 export {
   usePreloadImages
 };
+
+
+
