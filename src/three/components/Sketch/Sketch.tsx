@@ -355,7 +355,7 @@ const Sketch = () => {
       },
       BlackTightnessC: {
         // 1.69
-        value: 1.3,
+        value: 1.2,
         min: 1,
         max: 3,
         step: 0.01,
