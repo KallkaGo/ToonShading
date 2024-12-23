@@ -10,7 +10,7 @@ import { PageActionType, initialState, reducer } from "./Reducer";
 import Game from "./game/Game";
 import Load from "./load/Load";
 import { useInteractStore } from "@utils/Store";
-import bgSrc from '@textures/bg/bg.jpg';
+import bgSrc from "@textures/bg/bg.jpg";
 import { usePreloadImages } from "@utils/usePreload";
 export default function UIContainer() {
   const { isMute, audioAllowed, browserHidden } = useInteractStore((state) => ({
@@ -23,20 +23,17 @@ export default function UIContainer() {
   const container = useRef<Div>(null);
 
   useEffect(() => {
-     async function preload() {
+    async function preload() {
+      await usePreloadImages([bgSrc]);
 
-       await usePreloadImages([bgSrc]);
+      const root = container.current?.parentElement!;
 
-       const root = container.current?.parentElement!;
+      root.style.backgroundImage = `url(${bgSrc})`;
 
-       root.style.backgroundImage = `url(${bgSrc})`;
+      root.style.backgroundSize = "100% 100%";
+    }
 
-       root.style.backgroundSize = "100% 100%";
-
-     }
-
-     preload();
-
+    preload();
   }, []);
 
   useEffect(() => {
@@ -59,6 +56,11 @@ export default function UIContainer() {
   return (
     <>
       <UIWrapper id="panel" ref={container} onPointerUp={handlePointerUp}>
+        <div className="info">
+          <span>
+            Toon Shading - by <a href="https://github.com/KallkaGo">Kallka</a>
+          </span>
+        </div>
         {state.game && <Game />}
         {state.load && <Load emit={handleEmit} />}
       </UIWrapper>
