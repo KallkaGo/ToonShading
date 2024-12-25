@@ -32,36 +32,54 @@ import useKTX2Loader from "@utils/useKTX2Loader";
 import RES from "./RES";
 import { SMAAPreset } from "postprocessing";
 
+const textureList = [
+  RES.texture.faceLightMap,
+  RES.texture.hairLightMap,
+  RES.texture.bodyLightMap,
+  RES.texture.hairRampMap,
+  RES.texture.emissiveMap,
+  RES.texture.bodyRampMap,
+  RES.texture.matcapMap,
+  RES.texture.hairNormalMap,
+  RES.texture.bodyNormalMap,
+];
+
 const Sketch = () => {
   const ayakaGltf = useKTX2Loader(RES.model.ayaka);
-  const faceLightMap = useTexture(RES.texture.faceLightMap);
+
+  const [
+    faceLightMap,
+    hairLightMap,
+    bodyLightMap,
+    hairRampMap,
+    bodyEmissiveMap,
+    bodyRampMap,
+    metalMap,
+    hairNormalMap,
+    bodyNormalMap,
+  ] = useTexture(textureList);
+
   faceLightMap.generateMipmaps = false;
   faceLightMap.flipY = false;
-  const hairLightMap = useTexture(RES.texture.hairLightMap);
+
   hairLightMap.flipY = false;
   hairLightMap.wrapS = hairLightMap.wrapT = RepeatWrapping;
-  const bodyLightMap = useTexture(RES.texture.bodyLightMap);
+
   bodyLightMap.flipY = false;
   bodyLightMap.wrapS = bodyLightMap.wrapT = RepeatWrapping;
-  const hairRampMap = useTexture(RES.texture.hairRampMap);
+
   hairRampMap.generateMipmaps = false;
   hairRampMap.colorSpace = SRGBColorSpace;
 
-  const bodyEmissiveMap = useTexture(RES.texture.emissiveMap);
   bodyEmissiveMap.flipY = false;
   bodyEmissiveMap.colorSpace = SRGBColorSpace;
 
-  const bodyRampMap = useTexture(RES.texture.bodyRampMap);
   bodyRampMap.colorSpace = SRGBColorSpace;
   bodyRampMap.generateMipmaps = false;
 
-  const metalMap = useTexture(RES.texture.matcapMap);
-
-  const hairNormalMap = useTexture(RES.texture.hairNormalMap);
   hairNormalMap.wrapS = hairNormalMap.wrapT = RepeatWrapping;
   hairNormalMap.flipY = false;
 
-  const bodyNormalMap = useTexture(RES.texture.bodyNormalMap);
   bodyNormalMap.wrapS = bodyNormalMap.wrapT = RepeatWrapping;
   bodyNormalMap.flipY = false;
 
@@ -95,6 +113,7 @@ const Sketch = () => {
           innerHeight * devicePixelRatio
         )
       ),
+      uIntensity: new Uniform(2),
     }),
     []
   );
@@ -180,7 +199,7 @@ const Sketch = () => {
     {
       visible: false,
       position: {
-        value: { x: 0, y: 10, z: 10 },
+        value: { x: 0, y: 5, z: 5 },
         step: 0.01,
       },
       rotation: {
@@ -373,6 +392,18 @@ const Sketch = () => {
     }
   );
 
+  useControls("sdfPow", {
+    powIntensity: {
+      value: 1.5,
+      min: 1.0,
+      max: 5.0,
+      step: 0.01,
+      onChange: (v) => {
+        uniforms.uIntensity.value = v;
+      },
+    },
+  });
+
   const { depthTexture } = useDepthTexture(innerWidth, innerHeight);
 
   useEffect(() => {
@@ -470,7 +501,7 @@ const Sketch = () => {
     const vec = LightPosRef.current;
     const dpr = gl.getPixelRatio();
     groupRef.current?.children[0].getWorldPosition(vec);
-    uniforms.uLightPosition.value = vec;
+    uniforms.uLightPosition.value.copy(vec);
     uniforms.uTime.value += delta;
     outlineUniforms.uResolution.value.set(innerWidth * dpr, innerHeight * dpr);
   });

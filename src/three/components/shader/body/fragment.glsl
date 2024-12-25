@@ -21,6 +21,7 @@ uniform float uRimLightWidth;
 uniform float uRimLightIntensity;
 uniform float uNear;
 uniform float uFar;
+uniform float uIntensity;
 
 float RampMapRow0 = 1.;
 float RampMapRow1 = 4.;
