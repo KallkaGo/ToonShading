@@ -20,10 +20,13 @@ Game：
 ![game](https://github.com/user-attachments/assets/1f9223f2-27f2-4ef4-bf02-90125ea6f1bb)
 
 Demo:
-![demo](https://github.com/user-attachments/assets/7a86cd90-0744-414f-bfaf-15a589c6ddba)
+![screenshot_2](https://github.com/user-attachments/assets/6734ceba-e9f9-476c-b8e0-25ab1be5aa03)
+
 
 with HTML Background:
-![image](https://github.com/user-attachments/assets/08cb091f-ed2a-45a8-8108-6cdc5125fe0b)
+![screenshot_1](https://github.com/user-attachments/assets/5dc22ad3-ffa8-41e6-9ff1-746982d7996f)
+
+
 
 ------
 
