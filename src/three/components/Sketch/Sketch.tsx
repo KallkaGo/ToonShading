@@ -203,7 +203,7 @@ const Sketch = () => {
         step: 0.01,
       },
       rotation: {
-        value: 5.37,
+        value: 5.72,
         min: 0,
         max: Math.PI * 2,
         step: Math.PI / 100,
