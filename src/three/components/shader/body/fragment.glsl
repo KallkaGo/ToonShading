@@ -116,7 +116,9 @@ void main() {
   /* light.g > 0.5的部分受光照影响 */
   vec3 diffuse = vec3(0.);
   diffuse = mix(grayShadowColor, baseColor.rgb, lamberStep);
+  // 处理0-0.5的部分 常暗
   diffuse = mix(darkShadowColor, diffuse, clamp(lightMapTex.g * 2., 0., 1.));
+  // 处理0.5-1的部分 受光照影响
   diffuse = mix(diffuse, baseColor.rgb, clamp((lightMapTex.g - .5), 0., 1.) * 2.);
 
   float blinPhong = step(0., NDotL) * pow(max(NDotH, 0.), 10.);
