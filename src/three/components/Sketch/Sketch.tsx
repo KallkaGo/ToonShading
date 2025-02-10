@@ -59,14 +59,17 @@ const Sketch = () => {
     bodyNormalMap,
   ] = useTexture(textureList);
 
+  faceLightMap.colorSpace = LinearSRGBColorSpace
   faceLightMap.generateMipmaps = false;
   faceLightMap.flipY = false;
 
   hairLightMap.flipY = false;
-  hairLightMap.wrapS = hairLightMap.wrapT = RepeatWrapping;
+  hairLightMap.generateMipmaps = false;
+  hairLightMap.colorSpace = LinearSRGBColorSpace
 
   bodyLightMap.flipY = false;
-  bodyLightMap.wrapS = bodyLightMap.wrapT = RepeatWrapping;
+  bodyLightMap.generateMipmaps = false;
+  bodyLightMap.colorSpace = LinearSRGBColorSpace
 
   hairRampMap.generateMipmaps = false;
   hairRampMap.colorSpace = SRGBColorSpace;
@@ -77,10 +80,8 @@ const Sketch = () => {
   bodyRampMap.colorSpace = SRGBColorSpace;
   bodyRampMap.generateMipmaps = false;
 
-  hairNormalMap.wrapS = hairNormalMap.wrapT = RepeatWrapping;
   hairNormalMap.flipY = false;
 
-  bodyNormalMap.wrapS = bodyNormalMap.wrapT = RepeatWrapping;
   bodyNormalMap.flipY = false;
 
   const ayakaRef = useRef<Group>(null);
