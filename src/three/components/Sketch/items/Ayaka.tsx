@@ -1,11 +1,16 @@
-import useKTX2Loader from "@utils/useKTX2Loader";
-import RES from "../RES";
-import { useTexture } from "@react-three/drei";
+import type {
+  Group,
+} from 'three'
+import { useTexture } from '@react-three/drei'
+import { useFrame, useThree } from '@react-three/fiber'
+import { useDepthTexture } from '@utils/useDepthTexture'
+import useKTX2Loader from '@utils/useKTX2Loader'
+import { useControls } from 'leva'
+import { useEffect, useMemo, useRef } from 'react'
 import {
   BackSide,
   Color,
   FrontSide,
-  Group,
   LinearSRGBColorSpace,
   Mesh,
   MeshBasicMaterial,
@@ -14,19 +19,15 @@ import {
   Uniform,
   Vector2,
   Vector3,
-} from "three";
-import { useEffect, useMemo, useRef } from "react";
-import CustomShaderMaterial from "three-custom-shader-material/vanilla";
-import { useInteractStore } from "@utils/Store";
-import { useFrame, useThree } from "@react-three/fiber";
-import { useControls } from "leva";
-import { useDepthTexture } from "@utils/useDepthTexture";
-import vertexShader from "../../shader/vertex.glsl";
-import FacefragmentShader from "../../shader/face/fragment.glsl";
-import OtherfragmentShader from "../../shader/body/fragment.glsl";
-import outlineVertexShader from "../../shader/outline/vertex.glsl";
-import outlineFragmentShader from "../../shader/outline/fragment.glsl";
-import { useShallow } from "zustand/react/shallow";
+} from 'three'
+import CustomShaderMaterial from 'three-custom-shader-material/vanilla'
+import { useShallow } from 'zustand/react/shallow'
+import OtherfragmentShader from '../../shader/body/fragment.glsl'
+import FacefragmentShader from '../../shader/face/fragment.glsl'
+import outlineFragmentShader from '../../shader/outline/fragment.glsl'
+import outlineVertexShader from '../../shader/outline/vertex.glsl'
+import vertexShader from '../../shader/vertex.glsl'
+import RES from '../RES'
 
 const textureList = [
   RES.texture.faceLightMap,
@@ -38,10 +39,10 @@ const textureList = [
   RES.texture.matcapMap,
   RES.texture.hairNormalMap,
   RES.texture.bodyNormalMap,
-];
+]
 
-const Ayaka = () => {
-  const ayakaGltf = useKTX2Loader(RES.model.ayaka);
+function Ayaka() {
+  const ayakaGltf = useKTX2Loader(RES.model.ayaka)
 
   const [
     faceLightMap,
@@ -53,52 +54,52 @@ const Ayaka = () => {
     metalMap,
     hairNormalMap,
     bodyNormalMap,
-  ] = useTexture(textureList);
+  ] = useTexture(textureList)
 
-  faceLightMap.colorSpace = LinearSRGBColorSpace;
-  faceLightMap.generateMipmaps = false;
-  faceLightMap.flipY = false;
+  faceLightMap.colorSpace = LinearSRGBColorSpace
+  faceLightMap.generateMipmaps = false
+  faceLightMap.flipY = false
 
-  hairLightMap.flipY = false;
-  hairLightMap.generateMipmaps = false;
-  hairLightMap.colorSpace = LinearSRGBColorSpace;
+  hairLightMap.flipY = false
+  hairLightMap.generateMipmaps = false
+  hairLightMap.colorSpace = LinearSRGBColorSpace
 
-  bodyLightMap.flipY = false;
-  bodyLightMap.generateMipmaps = false;
-  bodyLightMap.colorSpace = LinearSRGBColorSpace;
+  bodyLightMap.flipY = false
+  bodyLightMap.generateMipmaps = false
+  bodyLightMap.colorSpace = LinearSRGBColorSpace
 
-  hairRampMap.generateMipmaps = false;
-  hairRampMap.colorSpace = SRGBColorSpace;
+  hairRampMap.generateMipmaps = false
+  hairRampMap.colorSpace = SRGBColorSpace
 
-  bodyEmissiveMap.flipY = false;
-  bodyEmissiveMap.colorSpace = SRGBColorSpace;
+  bodyEmissiveMap.flipY = false
+  bodyEmissiveMap.colorSpace = SRGBColorSpace
 
-  bodyRampMap.colorSpace = SRGBColorSpace;
-  bodyRampMap.generateMipmaps = false;
+  bodyRampMap.colorSpace = SRGBColorSpace
+  bodyRampMap.generateMipmaps = false
 
-  hairNormalMap.flipY = false;
+  hairNormalMap.flipY = false
 
-  bodyNormalMap.flipY = false;
+  bodyNormalMap.flipY = false
 
-  const ayakaRef = useRef<Group>(null);
-  const groupRef = useRef<Group>(null);
-  const LightPosRef = useRef<Vector3>(new Vector3());
+  const ayakaRef = useRef<Group>(null)
+  const groupRef = useRef<Group>(null)
+  const LightPosRef = useRef<Vector3>(new Vector3())
   const { scene, camera, gl } = useThree(
-    useShallow((state) => ({
+    useShallow(state => ({
       scene: state.scene,
       camera: state.camera,
       gl: state.gl,
-    }))
-  );
+    })),
+  )
 
   const uniforms = useMemo(
     () => ({
       uLightPosition: new Uniform(new Vector3()),
       uFaceLightMap: new Uniform(faceLightMap),
-      uRampVmove: new Uniform(0.5), //白天
+      uRampVmove: new Uniform(0.5), // 白天
       uIsDay: new Uniform(0.5),
       uHair: new Uniform(false),
-      uShadowColor: new Uniform(new Color("white")),
+      uShadowColor: new Uniform(new Color('white')),
       uMetalMap: new Uniform(metalMap),
       uNoMetallic: new Uniform(1),
       uMetallic: new Uniform(0.5),
@@ -110,25 +111,25 @@ const Ayaka = () => {
       uResolution: new Uniform(
         new Vector2(
           innerWidth * devicePixelRatio,
-          innerHeight * devicePixelRatio
-        )
+          innerHeight * devicePixelRatio,
+        ),
       ),
       uIntensity: new Uniform(2),
     }),
-    []
-  );
+    [],
+  )
 
   const outlineUniforms = useMemo(
     () => ({
       uResolution: new Uniform(new Vector2()),
       uOutLineWidth: new Uniform(0.4),
     }),
-    []
-  );
+    [],
+  )
 
   /* DayOrNight */
   useControls(
-    "DayOrNight",
+    'DayOrNight',
     {
       time: {
         value: 1,
@@ -136,18 +137,18 @@ const Ayaka = () => {
         max: 1,
         step: 0.01,
         onChange: (v) => {
-          uniforms.uIsDay.value = v;
+          uniforms.uIsDay.value = v
         },
       },
     },
     {
       collapsed: true,
-    }
-  );
+    },
+  )
 
   /* Outline */
   useControls(
-    "OutLine",
+    'OutLine',
     {
       lineWidth: {
         value: 0.3,
@@ -155,18 +156,18 @@ const Ayaka = () => {
         max: 1,
         step: 0.01,
         onChange: (v) => {
-          outlineUniforms.uOutLineWidth.value = v;
+          outlineUniforms.uOutLineWidth.value = v
         },
       },
     },
     {
       collapsed: true,
-    }
-  );
+    },
+  )
 
   /* LightPosition */
   const { visible, position } = useControls(
-    "Light",
+    'Light',
     {
       visible: false,
       position: {
@@ -179,34 +180,34 @@ const Ayaka = () => {
         max: Math.PI * 2,
         step: Math.PI / 100,
         onChange: (v) => {
-          groupRef.current!.rotation.y = v;
+          groupRef.current!.rotation.y = v
         },
       },
     },
     {
       collapsed: true,
-    }
-  );
+    },
+  )
 
   /* Shadow */
   useControls(
-    "Shadow",
+    'Shadow',
     {
       ShadowColor: {
-        value: "white",
+        value: 'white',
         onChange: (v) => {
-          uniforms.uShadowColor.value = new Color(v);
+          uniforms.uShadowColor.value = new Color(v)
         },
       },
     },
     {
       collapsed: true,
-    }
-  );
+    },
+  )
 
   /* Metal */
   useControls(
-    "Metal",
+    'Metal',
     {
       metallic: {
         value: 0.2,
@@ -214,7 +215,7 @@ const Ayaka = () => {
         max: 10,
         step: 0.01,
         onChange: (v) => {
-          uniforms.uMetallic.value = v;
+          uniforms.uMetallic.value = v
         },
       },
       noMetallic: {
@@ -223,18 +224,18 @@ const Ayaka = () => {
         max: 1,
         step: 0.01,
         onChange: (v) => {
-          uniforms.uNoMetallic.value = v;
+          uniforms.uNoMetallic.value = v
         },
       },
     },
     {
       collapsed: true,
-    }
-  );
+    },
+  )
 
   /* RimLight */
   useControls(
-    "RimLight",
+    'RimLight',
     {
       RimLightWidth: {
         // 0.12
@@ -243,7 +244,7 @@ const Ayaka = () => {
         max: 1,
         step: 0.01,
         onChange: (v) => {
-          uniforms.uRimLightWidth.value = v;
+          uniforms.uRimLightWidth.value = v
         },
       },
       intensity: {
@@ -252,36 +253,36 @@ const Ayaka = () => {
         max: 10,
         step: 0.01,
         onChange: (v) => {
-          uniforms.uRimLightIntensity.value = v;
+          uniforms.uRimLightIntensity.value = v
         },
       },
     },
     {
       collapsed: true,
-    }
-  );
+    },
+  )
 
-  useControls("sdfPow", {
+  useControls('sdfPow', {
     powIntensity: {
       value: 1.5,
       min: 1.0,
       max: 5.0,
       step: 0.01,
       onChange: (v) => {
-        uniforms.uIntensity.value = v;
+        uniforms.uIntensity.value = v
       },
     },
-  });
+  })
 
-  const { depthTexture } = useDepthTexture(innerWidth, innerHeight);
+  const { depthTexture } = useDepthTexture(innerWidth, innerHeight)
 
   useEffect(() => {
-    const backModel = ayakaGltf.scene.clone(true);
+    const backModel = ayakaGltf.scene.clone(true)
     ayakaGltf.scene.traverse((child) => {
       if (child instanceof Mesh) {
-        const mat = child.material as MeshStandardMaterial;
-        mat.map!.colorSpace = SRGBColorSpace;
-        if (mat.name == "face") {
+        const mat = child.material as MeshStandardMaterial
+        mat.map!.colorSpace = SRGBColorSpace
+        if (mat.name === 'face') {
           const newMat = new CustomShaderMaterial({
             baseMaterial: MeshStandardMaterial,
             vertexShader,
@@ -292,14 +293,15 @@ const Ayaka = () => {
             transparent: mat.transparent,
             side: FrontSide,
             alphaTest: mat.alphaTest,
-          });
-          child.material = newMat;
-          child.material.uniforms.uRampMap = new Uniform(bodyRampMap);
+          })
+          child.material = newMat
+          child.material.uniforms.uRampMap = new Uniform(bodyRampMap)
           child.material.uniforms.uForwardVec = new Uniform(
-            new Vector3(0, 0, 1)
-          );
-          child.material.uniforms.uLeftVec = new Uniform(new Vector3(1, 0, 0));
-        } else {
+            new Vector3(0, 0, 1),
+          )
+          child.material.uniforms.uLeftVec = new Uniform(new Vector3(1, 0, 0))
+        }
+        else {
           child.material = new CustomShaderMaterial({
             name: mat.name,
             baseMaterial: MeshStandardMaterial,
@@ -314,22 +316,23 @@ const Ayaka = () => {
             uniforms,
             vertexShader,
             fragmentShader: OtherfragmentShader,
-          });
-          if (mat.name === "hair" || mat.name == "dress") {
-            child.material.uniforms.uLightMap = new Uniform(hairLightMap);
-            child.material.uniforms.uRampMap = new Uniform(hairRampMap);
-            child.material.uniforms.uNormalMap = new Uniform(hairNormalMap);
-            child.material.uniforms.uEmissiveMap = new Uniform(null);
-          } else if (mat.name == "body") {
-            child.material.uniforms.uLightMap = new Uniform(bodyLightMap);
-            child.material.uniforms.uRampMap = new Uniform(bodyRampMap);
-            child.material.uniforms.uNormalMap = new Uniform(bodyNormalMap);
-            child.material.uniforms.uEmissiveMap = new Uniform(bodyEmissiveMap);
+          })
+          if (mat.name === 'hair' || mat.name === 'dress') {
+            child.material.uniforms.uLightMap = new Uniform(hairLightMap)
+            child.material.uniforms.uRampMap = new Uniform(hairRampMap)
+            child.material.uniforms.uNormalMap = new Uniform(hairNormalMap)
+            child.material.uniforms.uEmissiveMap = new Uniform(null)
+          }
+          else if (mat.name === 'body') {
+            child.material.uniforms.uLightMap = new Uniform(bodyLightMap)
+            child.material.uniforms.uRampMap = new Uniform(bodyRampMap)
+            child.material.uniforms.uNormalMap = new Uniform(bodyNormalMap)
+            child.material.uniforms.uEmissiveMap = new Uniform(bodyEmissiveMap)
           }
         }
-        child.material.uniforms.uDepthTexture = new Uniform(depthTexture);
+        child.material.uniforms.uDepthTexture = new Uniform(depthTexture)
       }
-    });
+    })
     backModel.traverse((child) => {
       if (child instanceof Mesh) {
         const mat = new CustomShaderMaterial({
@@ -343,35 +346,35 @@ const Ayaka = () => {
           map: child.material.map,
           transparent: false,
           alphaTest: child.material.alphaTest,
-        });
-        child.material = mat;
+        })
+        child.material = mat
       }
-    });
-    backModel.scale.setScalar(1.0001);
-    backModel.position.copy(ayakaRef.current!.position);
-    scene.add(backModel);
-    gl.setClearColor(0x000000, 0);
+    })
+    backModel.scale.setScalar(1.0001)
+    backModel.position.copy(ayakaRef.current!.position)
+    scene.add(backModel)
+    gl.setClearColor(0x000000, 0)
 
     return () => {
-      scene.remove(backModel);
+      scene.remove(backModel)
       backModel.traverse((child) => {
         if (child instanceof Mesh) {
-          child.geometry.dispose();
-          child.material.dispose();
+          child.geometry.dispose()
+          child.material.dispose()
         }
-      });
-    };
-  }, []);
+      })
+    }
+  }, [])
 
   useFrame((_, delta) => {
-    delta %= 1;
-    const vec = LightPosRef.current;
-    const dpr = gl.getPixelRatio();
-    groupRef.current?.children[0].getWorldPosition(vec);
-    uniforms.uLightPosition.value.copy(vec);
-    uniforms.uTime.value += delta;
-    outlineUniforms.uResolution.value.set(innerWidth * dpr, innerHeight * dpr);
-  });
+    delta %= 1
+    const vec = LightPosRef.current
+    const dpr = gl.getPixelRatio()
+    groupRef.current?.children[0].getWorldPosition(vec)
+    uniforms.uLightPosition.value.copy(vec)
+    uniforms.uTime.value += delta
+    outlineUniforms.uResolution.value.set(innerWidth * dpr, innerHeight * dpr)
+  })
 
   return (
     <>
@@ -381,7 +384,7 @@ const Ayaka = () => {
           scale={[0.2, 0.2, 0.2]}
         >
           <sphereGeometry></sphereGeometry>
-          <meshBasicMaterial color={"hotpink"}></meshBasicMaterial>
+          <meshBasicMaterial color="hotpink"></meshBasicMaterial>
         </mesh>
       </group>
       <primitive
@@ -390,7 +393,7 @@ const Ayaka = () => {
         position={[0, -0.7, 0]}
       />
     </>
-  );
-};
+  )
+}
 
-export default Ayaka;
+export default Ayaka

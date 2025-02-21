@@ -1,11 +1,11 @@
-import { useFBO } from "@react-three/drei"
-import { useFrame, useThree } from "@react-three/fiber"
-import { useMemo } from "react"
-import { Color, DepthFormat, DepthTexture, DoubleSide, MeshDepthMaterial, NearestFilter, RGBAFormat, ShaderMaterial, Texture, Uniform, UnsignedByteType, UnsignedShortType } from "three"
+import type { Texture } from 'three'
+import { useFBO } from '@react-three/drei'
+import { useFrame, useThree } from '@react-three/fiber'
+import { useMemo } from 'react'
+import { Color, DepthFormat, DepthTexture, DoubleSide, MeshDepthMaterial, UnsignedShortType } from 'three'
 
-const useDepthTexture = (width: number, height: number) => {
-
-  const camera = useThree((state) => state.camera)
+function useDepthTexture(width: number, height: number) {
+  const camera = useThree(state => state.camera)
 
   const rt1 = useFBO(width, height, {
     depthBuffer: true,
@@ -16,15 +16,13 @@ const useDepthTexture = (width: number, height: number) => {
   rt1.depthTexture.format = DepthFormat
   rt1.depthTexture.type = UnsignedShortType
 
-
-
   const material = useMemo(() => new MeshDepthMaterial({
     side: DoubleSide,
   }), [])
   const bgColor = new Color(0x000000)
 
-  /* 
-  without overrideMaterial will not work 
+  /*
+  without overrideMaterial will not work
   need two RenderTarget and swap after render
   */
   useFrame((state, delta) => {
@@ -43,10 +41,8 @@ const useDepthTexture = (width: number, height: number) => {
   })
 
   return { depthTexture: rt1.depthTexture as Texture }
-
 }
 
-
 export {
-  useDepthTexture
+  useDepthTexture,
 }

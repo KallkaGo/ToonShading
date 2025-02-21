@@ -1,3 +1,4 @@
+/* eslint-disable style/no-tabs */
 export const sampleFunctions = /* glsl */`
 
 	// Without original size argument for power of two targets
@@ -80,4 +81,4 @@ export const sampleFunctions = /* glsl */`
 
 	}
 
-`;
+`

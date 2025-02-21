@@ -1,68 +1,30 @@
-import { OrbitControls, Sky, useTexture } from "@react-three/drei";
-import { useInteractStore, useLoadedStore } from "@utils/Store";
-import { useEffect, useMemo, useRef } from "react";
-import {
-  BackSide,
-  Color,
-  FrontSide,
-  Group,
-  LinearSRGBColorSpace,
-  Mesh,
-  MeshBasicMaterial,
-  MeshStandardMaterial,
-  RepeatWrapping,
-  SRGBColorSpace,
-  Uniform,
-  Vector2,
-  Vector3,
-} from "three";
-import CustomShaderMaterial from "three-custom-shader-material/vanilla";
-import vertexShader from "../shader/vertex.glsl";
-import FacefragmentShader from "../shader/face/fragment.glsl";
-import OtherfragmentShader from "../shader/body/fragment.glsl";
-import outlineVertexShader from "../shader/outline/vertex.glsl";
-import outlineFragmentShader from "../shader/outline/fragment.glsl";
-import { useFrame, useThree } from "@react-three/fiber";
-import { useControls } from "leva";
-import { EffectComposer, SMAA } from "@react-three/postprocessing";
-import GTToneMap from "../effect/GTToneMap";
-import { Bloom as CustomBloom } from "../effect/Bloom";
-import { useDepthTexture } from "@utils/useDepthTexture";
-import useKTX2Loader from "@utils/useKTX2Loader";
-import RES from "./RES";
-import Ayaka from "./items/Ayaka";
+import { OrbitControls, Sky } from '@react-three/drei'
+import { EffectComposer } from '@react-three/postprocessing'
+import { useInteractStore, useLoadedStore } from '@utils/Store'
+import { useControls } from 'leva'
+import { useEffect } from 'react'
 
-const textureList = [
-  RES.texture.faceLightMap,
-  RES.texture.hairLightMap,
-  RES.texture.bodyLightMap,
-  RES.texture.hairRampMap,
-  RES.texture.emissiveMap,
-  RES.texture.bodyRampMap,
-  RES.texture.matcapMap,
-  RES.texture.hairNormalMap,
-  RES.texture.bodyNormalMap,
-];
+import { Bloom as CustomBloom } from '../effect/Bloom'
+import GTToneMap from '../effect/GTToneMap'
+import Ayaka from './items/Ayaka'
 
-const Sketch = () => {
-
-  const controlDom = useInteractStore((state) => state.controlDom);
+function Sketch() {
+  const controlDom = useInteractStore(state => state.controlDom)
 
   /* Background */
-  const { transparent } = useControls("Background", {
+  const { transparent } = useControls('Background', {
     transparent: true,
-  });
-
+  })
 
   /* AmbientLight */
   const { color, int } = useControls(
-    "ambientLight",
+    'ambientLight',
     {
       color: {
         // #e5cebe
         // #ffffff
         // #ffe4e4
-        value: "#fff3e3",
+        value: '#fff3e3',
       },
       int: {
         // 。85
@@ -75,12 +37,12 @@ const Sketch = () => {
     },
     {
       collapsed: true,
-    }
-  );
+    },
+  )
 
   /* Bloom */
   const bloomProps = useControls(
-    "Bloom",
+    'Bloom',
     {
       intensity: {
         // 1.6
@@ -124,18 +86,17 @@ const Sketch = () => {
       glowColor: {
         // #d8b2b2
         // #6b3a3a
-        value: "#6c5252",
+        value: '#6c5252',
       },
     },
     {
       collapsed: true,
-    }
-  );
-
+    },
+  )
 
   /* GT ToneMap */
   const gtProps = useControls(
-    "ToneMapGT",
+    'ToneMapGT',
     {
       MaxLuminanice: {
         value: 2,
@@ -178,17 +139,12 @@ const Sketch = () => {
     },
     {
       collapsed: true,
-    }
-  );
-
+    },
+  )
 
   useEffect(() => {
-  
-    useLoadedStore.setState({ ready: true });
-
-  }, []);
-
-
+    useLoadedStore.setState({ ready: true })
+  }, [])
 
   return (
     <>
@@ -214,7 +170,7 @@ const Sketch = () => {
         <GTToneMap {...gtProps} />
       </EffectComposer>
     </>
-  );
-};
+  )
+}
 
-export default Sketch;
+export default Sketch

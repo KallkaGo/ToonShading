@@ -1,10 +1,7 @@
-import { PageActionType } from "./Reducer";
+import type { PageActionType } from './Reducer'
 
 interface IProps {
-    emit: (type: PageActionType, payload?: any) => void;
+  emit: (type: PageActionType, payload?: any) => void
 }
 
-
-
-
-export type { IProps};
+export type { IProps }

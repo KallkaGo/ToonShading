@@ -1,4 +1,5 @@
-import styled from "styled-components";
+import styled from 'styled-components'
+
 export const UIWrapper = styled.div`
   position: absolute;
   width: 100vw;
@@ -16,4 +17,4 @@ export const UIWrapper = styled.div`
       color: #fff;
     }
   }
-`;
+`

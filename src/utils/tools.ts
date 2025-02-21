@@ -1,10 +1,10 @@
-import { useLayoutEffect } from "react"
-import { Material, Mesh, MeshStandardMaterial, Object3D, WebGLProgramParametersWithUniforms } from "three"
-import CustomShaderMaterial from "three-custom-shader-material/vanilla";
-import { ObjectMap } from "@react-three/fiber";
-import { type GLTF } from 'three-stdlib';
+import type { ObjectMap } from '@react-three/fiber'
+import type { Material, Mesh, Object3D, WebGLProgramParametersWithUniforms } from 'three'
+import type CustomShaderMaterial from 'three-custom-shader-material/vanilla'
+import type { GLTF } from 'three-stdlib'
+import { useLayoutEffect } from 'react'
 
-const useModifyCSM = (gltf: GLTF & ObjectMap, mat: CustomShaderMaterial) => {
+function useModifyCSM(gltf: GLTF & ObjectMap, mat: CustomShaderMaterial) {
   useLayoutEffect(() => {
     gltf.scene.traverse((child: Object3D) => {
       if ((child as Mesh).isMesh) {
@@ -15,7 +15,7 @@ const useModifyCSM = (gltf: GLTF & ObjectMap, mat: CustomShaderMaterial) => {
   }, [])
 }
 
-const useModifyMaterial = (gltf: GLTF & ObjectMap, onBeforeCompileFn: (shader: WebGLProgramParametersWithUniforms) => void) => {
+function useModifyMaterial(gltf: GLTF & ObjectMap, onBeforeCompileFn: (shader: WebGLProgramParametersWithUniforms) => void) {
   useLayoutEffect(() => {
     gltf.scene.traverse((child: Object3D) => {
       if ((child as Mesh).isMesh) {
@@ -27,8 +27,7 @@ const useModifyMaterial = (gltf: GLTF & ObjectMap, onBeforeCompileFn: (shader: W
   }, [])
 }
 
-
 export {
   useModifyCSM,
-  useModifyMaterial
+  useModifyMaterial,
 }
