@@ -4,7 +4,7 @@ uniform sampler2D uFaceLightMap;
 uniform float uIsDay;
 uniform sampler2D uRampMap;
 uniform vec3 uForwardVec;
-uniform vec3 uLeftVec;
+uniform vec3 uRightVec;
 uniform vec2 uResolution;
 uniform float uIntensity;
 
@@ -13,16 +13,16 @@ float RampRow = 5.;
 void main() {
   /* 处理数据 */
   vec3 forwardVec = normalize(uForwardVec);
-  vec3 leftVec = normalize(uLeftVec);
+  vec3 rightVec = normalize(uRightVec);
   vec3 lightVec = normalize(uLightPosition);
-  vec3 upVector = cross(forwardVec, leftVec);
+  vec3 upVector = cross(forwardVec, rightVec);
 
   vec3 LpU = dot(lightVec, upVector) / pow(length(upVector), 2.) * upVector;
   vec3 LpHeadHorizon = normalize(lightVec - LpU);
 
-  float value = acos(dot(LpHeadHorizon, leftVec)) / PI;
+  float value = acos(dot(LpHeadHorizon, rightVec)) / PI;
 
-  // 0-0.5 expose left 0.5-1 expose right
+  // 0-0.5 expose left 0.5-1 expose right （base face）
   float exposeLeft = step(value, 0.5);
 
   float l = clamp(value, 0., 0.5);

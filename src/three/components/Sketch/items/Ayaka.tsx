@@ -299,7 +299,7 @@ function Ayaka() {
           child.material.uniforms.uForwardVec = new Uniform(
             new Vector3(0, 0, 1),
           )
-          child.material.uniforms.uLeftVec = new Uniform(new Vector3(1, 0, 0))
+          child.material.uniforms.uRightVec = new Uniform(new Vector3(1, 0, 0))
         }
         else {
           child.material = new CustomShaderMaterial({
