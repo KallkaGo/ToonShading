@@ -1,5 +1,5 @@
 ## ToonShading
-Unity Toon Shading Webgl replica
+Genshin Impact Toon Shading Webgl replica
 
 portal: https://toon-shading.vercel.app/   (To open the debug panel, please fill in #debug in the url(https://toon-shading.vercel.app/#debug))
 
