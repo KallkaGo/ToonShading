@@ -44,6 +44,8 @@ const textureList = [
 function Ayaka() {
   const ayakaGltf = useKTX2Loader(RES.model.ayaka)
 
+  const outlineModel = useMemo(() => ayakaGltf.scene.clone(true), [ayakaGltf])
+
   const [
     faceLightMap,
     hairLightMap,
@@ -274,10 +276,9 @@ function Ayaka() {
     },
   })
 
-  const { depthTexture } = useDepthTexture(innerWidth, innerHeight)
+  const { depthTexture } = useDepthTexture(innerWidth, innerHeight,[outlineModel])
 
   useEffect(() => {
-    const backModel = ayakaGltf.scene.clone(true)
     ayakaGltf.scene.traverse((child) => {
       if (child instanceof Mesh) {
         const mat = child.material as MeshStandardMaterial
@@ -333,7 +334,7 @@ function Ayaka() {
         child.material.uniforms.uDepthTexture = new Uniform(depthTexture)
       }
     })
-    backModel.traverse((child) => {
+    outlineModel.traverse((child) => {
       if (child instanceof Mesh) {
         const mat = new CustomShaderMaterial({
           baseMaterial: MeshBasicMaterial,
@@ -350,14 +351,13 @@ function Ayaka() {
         child.material = mat
       }
     })
-    backModel.scale.setScalar(1.0001)
-    backModel.position.copy(ayakaRef.current!.position)
-    scene.add(backModel)
-    gl.setClearColor(0x000000, 0)
+    outlineModel.scale.setScalar(1.0001)
+    outlineModel.position.copy(ayakaRef.current!.position)
+    scene.add(outlineModel)
 
     return () => {
-      scene.remove(backModel)
-      backModel.traverse((child) => {
+      scene.remove(outlineModel)
+      outlineModel.traverse((child) => {
         if (child instanceof Mesh) {
           child.geometry.dispose()
           child.material.dispose()
