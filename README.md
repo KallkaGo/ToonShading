@@ -30,7 +30,7 @@ with HTML Background:
 
 ------
 
-## Credit
+## Acknowledgements
 
 - [SIGGRAPH 2014 Advances in Real-Time Rendering in Games](https://www.iryoku.com/next-generation-post-processing-in-call-of-duty-advanced-warfare/)
 - [给你柠檬椰果养乐多你会跟我玩吗](https://space.bilibili.com/32704665)
