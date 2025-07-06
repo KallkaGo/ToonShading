@@ -46,7 +46,7 @@ export default defineConfig({
                         "@react-three/drei",
                         "r3f-perf",
                     ],
-                    chunk: ["leva", "@wtto00/jweixin-esm", "dingtalk-jsapi"],
+                    chunk: ["leva"],
                     pp: ["@react-three/postprocessing", "postprocessing"],
                 },
             },
