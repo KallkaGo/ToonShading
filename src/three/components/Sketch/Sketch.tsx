@@ -165,7 +165,7 @@ function Sketch() {
         />
       )}
       <Ayaka />
-      <EffectComposer disableNormalPass>
+      <EffectComposer>
         <CustomBloom {...bloomProps} transparent={transparent} />
         <GTToneMap {...gtProps} />
       </EffectComposer>
